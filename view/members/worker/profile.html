@@ -1,0 +1,328 @@
+<style>
+#worker_information { width: 100px;float:left;}
+#description { width: 450px; float:left;}
+#profile_dialog { display:none;}
+#profile_div { display:none;}
+.work_categories {margin-top:-3px;}
+#profile_div { width:570px;}
+#photo {display:none;}
+#my_gigs { margin-top:350px; width:570px;}
+
+#social_share { width: 32px; float:left; }
+.category {margin-top: -10px !important;}
+.btn { width: 100px;}
+.work_title {width: 100px;}
+</style> 
+
+<div id="profile_div" ng-controller="profileController">
+	<div id='description' class='left'>
+		{{cover_letter}}
+	</div>
+
+	<div id='worker_information' class='right'>
+		<span id='work_title'>{{title}}</span><br>
+		<span id='pay_rate'>
+			<form id='worker_picture_upload' method='POST' enctype='multipart/form-data'> <label for='photo'> <img
+				src='{{image}}' id='pic' /> </label> <input type='file' id='photo' name='photo' /> </form>
+				{{first_name}} {{last_name}}<br>
+				<b style='color:#2e6e9e;font-weight:bold;'>${{pay_rate}}/hr</b><br>
+				<span class="user_rating"><span class="fui-star-2"></span><span class="fui-star-2"></span><span
+				class="fui-star-2"></span><span class="fui-star-2"></span><span class="fui-star-2"></span></span>
+			</span>
+			<button id='edit_profile' class='btn btn-lg btn-success right' height='32px' width='32px'>Edit</button>
+	</div>
+		<div id='title'>
+			{{position}}
+		</div>
+		<div id='social_share'> 
+			<a href='https://www.facebook.com/sharer/sharer.php?u={{share_link}}' target='_blank'><img style='width:32px;height:32px;' src='/view/members/worker/members/facebook.png' /></a><a href='https://twitter.com/home?status={{share_link}}' target='_blank'><img style='width:32px;height:32px;' src='/view/members/worker/members/twitter.png' /></a><a href='https://plus.google.com/share?url={{share_link}}' target='_blank'><img style='width:32px;height:32px;' src='/view/members/worker/members/google.png' /></a><a href='https://www.linkedin.com/shareArticle?mini=true&url={{share_link}}&title=WorkFar%3A%20Marketplace%20for%20Workers%20%26%20Employers&summary=I%20got%20an%20interview%20on%20{{share_link}}!&source=' target='_blank'><img style='width:32px;height:32px;' src='/view/members/worker/members/linkedin.png' /></a>
+		</div>
+		<br>
+		<div id='work_history'><br>
+		</div>
+
+	</div>
+	<div id="profile_dialog" title="Update Profile" class="container">
+		<form id="profile_form" class="container">
+			<div class="form-group col-md-6">
+				<input type="text" class="half-text form-control widetextbox" regex="^[a-zA-Z\s]+$" placeholder="First Name" title="First Name"
+				name="first_name" id="edit_first_name" />
+			</div>
+			<div class="form-group col-md-6">
+				<input type="text" class="half-text form-control widetextbox" regex="^[a-zA-Z\s]+$" placeholder="Last Name" title="Last Name"
+				name="last_name" id="edit_last_name" />
+			</div>
+			<div class="form-group col-md-6">
+				<input type="text" class="half-text form-control widetextbox" regex="^[a-zA-Z\s]+$" placeholder="Professional Title"
+				title="Professional Title" name="title" id="edit_title" />
+			</div>
+			<div class="form-group col-md-6">
+				<input class="half-text form-control widetextbox" type="text" regex="^[+-]?([0-9]*[.])?[0-9]+$" placeholder="Hourly Rate, In USD"
+				title="Hourly Rate, Example: 8.50" name="hourly_rate" id="edit_hourly_rate" />
+			</div> 
+			<div class="form-group col-md-12">
+				<textarea class="full-text form-control widetextbox" rows="10" placeholder="About Me" title="Letter to potential employers"
+				cols="46" name="cover_letter" id="edit_cover_letter"></textarea>
+			</div>
+
+			<div id="options" class="checkbox col-md-12">
+				<select id="location" name="location" class="widetextbox" title="Where are you located?">
+				</select>
+				<br />
+				Please Choose 2 Categories:
+				<br />
+				<table id='work_categories'> </table>
+				<input type="hidden" name="original_categories[]" id="original_category1" />
+				<input type="hidden" name="original_categories[]" id="original_category2" /><br />
+				<button type="button" id="profile_form_submit" class="btn btn-primary btn-md">Update</button>
+			</div>
+		</form>
+	</div>
+<div id='my_gigs'></div>
+	<script type="text/javascript">
+	$(document).ready(function () {
+		var category_count = 0;
+		var work_category_amount;
+		var chosen_categories = Array();
+		Utility.Form.get('my_gigs',function(jServices) {
+			var oServices = $.parseJSON(jServices);
+			if (oServices['price'] != undefined)
+				$("#my_gigs").html("<div id='history left'>$"+ oServices['price'] + " " + oServices['name'] + " :" + oServices['description'] +"</div>");
+		});
+		Utility.Form.get('my_worker_profile', function (jProfileResult) {
+			window.oProfileResult = $.parseJSON(jProfileResult);
+
+			if (oProfileResult[0]['has_profile'] == 1) {
+				angular.module('profileApp', ['ngSanitize']).controller('profileController', ['$scope', '$sce', function ($scope, $sce) {
+					$scope.first_name = window.oProfileResult[0]['first_name'];
+					$scope.last_name = window.oProfileResult[0]['last_name'];
+					$scope.cover_letter = window.oProfileResult[0]['orig_description'];
+					$scope.pay_rate = window.oProfileResult[0]['pay_rate'];
+					$scope.image = window.oProfileResult[0]['photograph'];
+					$scope.title = window.oProfileResult[0]['title'];
+					$scope.share_link = window.oProfileResult[0]['share_link'];
+
+
+					if (window.oProfileResult[1] === undefined) {
+
+					} else {
+						work_history_length = window.oProfileResult[1].length;
+						for (var i = 0; i < work_history_length; i++) {
+							$("#work_history").append("<div class='left history'><b>"
+								+ oProfileResult[1][i]['title'] + "</b><br />"
+								+ oProfileResult[1][i]['profile_comment'] +
+								"<table><tr><td>Availability</td><td>"
+								+ Utility.Rating.getStars(window.oProfileResult[1][i]['availability'])
+								+ "</td></tr><tr><td>Communication</td><td>"
+								+ Utility.Rating.getStars(window.oProfileResult[1][i]['communication'])
+								+ "</td></tr><tr><td>Completion</td><td>"
+								+ Utility.Rating.getStars(window.oProfileResult[1][i]['completion'])
+								+ "</td></tr><tr><td>Knowledge</td><td>"
+								+ Utility.Rating.getStars(window.oProfileResult[1][i]['knowledge'])
+								+ "</td></tr></table></div>");
+						}
+					}
+				}]);
+angular.element(document.getElementById("profile_div")).ready(function () {
+	angular.bootstrap(document.getElementById("profile_div"), ['profileApp']);
+	$("#profile_div").show();
+});
+$("#edit_profile").button();
+$("#photo").on('change', function () {
+	var fd = new FormData();
+	var input = document.getElementById("photo");
+	fd.append('photo', input.files[0]);
+	Utility.Form.get("token", function (jToken) {
+		var oToken = $.parseJSON(jToken);
+		$.ajax({
+			url: 'create_photo/' + oToken[0],
+			type: 'POST',
+			data: fd,
+			processData: false,
+			contentType: false
+		}).done(function () {
+			Utility.Form.get("view/members/worker/profile.html", function (page) {
+				$("#tabs").html(page);
+			});
+		});
+	});
+});
+$("#profile_picture").hover(function () {
+}, function () {
+});
+Utility.Form.get("get_locations", function (jLocationResult) {
+	oLocationResult = $.parseJSON(jLocationResult);
+	location_length = oLocationResult.length;
+	for (var i = 0; i < location_length; i++)
+		$("#location").append("<option value='" + oLocationResult[i]['id'] + "'>" + oLocationResult[i]['name'] + "</option>");
+});
+} else {
+	$("#edit_first_name").val(oProfileResult[0]['first_name']);
+	$("#edit_last_name").val(oProfileResult[0]['last_name']);
+	$("#edit_title").val(oProfileResult[0]['title']);
+	$("#edit_cover_letter").val(oProfileResult[0]['orig_description']);
+
+	Utility.Form.get("get_locations", function (jLocationResult) {
+		oLocationResult = $.parseJSON(jLocationResult);
+		location_length = oLocationResult.length;
+		for (var i = 0; i < location_length; i++)
+			$("#location").append("<option value='" + oLocationResult[i]['id'] + "'>" + oLocationResult[i]['name'] + "</option>");
+	});
+	Utility.Form.get("get_work_categories", function (jCategoryResult) {
+		oCategoryResult = $.parseJSON(jCategoryResult);
+		category_length = oCategoryResult.length;
+		for (var i = 0; i < category_length; i++) {
+			$("#work_categories").append('<tr><td><label class="category" for="category' + oCategoryResult[i]['id'] + '"><input type="checkbox" data-toggle="checkbox" class="work_categories" id="work_category' + oCategoryResult[i]['id'] + '" name="categories[]" value="' + oCategoryResult[i]['id'] + '" /></td><td>' + oCategoryResult[i]['name'] + '</label></td></tr>');
+		}
+		Utility.Form.get("get_worker_categories", function (jWorkerCategories) {
+			oWorkerCategories = $.parseJSON(jWorkerCategories);
+			var category_length = oWorkerCategories[0].length;
+			for (var i = 0; i < category_length; i++) {
+				chosen_categories[oWorkerCategories[0][i]['work_category_id']] = oWorkerCategories[0][i]['work_category_id'];
+				$("#work_category" + oWorkerCategories[0][i]['work_category_id']).attr("checked", true);
+			}
+			if (oWorkerCategories[0].length == 1) {
+				$("#original_category1").val(oWorkerCategories[0][0]['work_category_id']);
+
+				work_category_amount = oWorkerCategories[1]['work_category_amount'];
+
+				for (var i = 1; i < work_category_amount + 1; i++) {
+					if (i == oWorkerCategories[0][0]['work_category_id'] || i == oWorkerCategories[0][1]['work_category_id']) {
+						category_count++;
+									continue; // Skip the current iteration so the checkbox is not disabled.
+								}
+								$("#work_category" + i).attr("disabled", true);
+							}
+						}
+						if (oWorkerCategories[0].length >= 1)
+							$("#original_category2").val(oWorkerCategories[0][1]['work_category_id']);
+					});
+$(".work_categories").change(function () {
+						// Getting rid of a Category
+						if ($(this).attr("checked") == "checked") {
+							$(this).attr("checked", false);
+							for (var i = 1; i <= 10; i++) {
+								$("#work_category" + i).attr("disabled", false);
+							}
+
+							chosen_categories[$(this).val()] = undefined;
+
+							category_count--;
+
+							// Adding a Category
+						} else if ($(this).attr("checked") == undefined) {
+							$(this).attr("checked", true);
+
+							chosen_categories[$(this).val()] = $(this).val();
+							for (var i = 1; i <= 10; i++) {
+								if (i == chosen_categories[i])
+									continue; // Skip the current iteration so the checkbox is not disabled.
+								if (category_count == 1) // Starting from 0,2 categories actually
+									$("#work_category" + i).attr("disabled", true);
+							}
+							category_count++;
+						}
+					});
+});
+}
+$(".widetextbox").on("keyup", function () {
+	var hourly_rate_regex = new RegExp($(this).attr('regex'));
+
+	if (!hourly_rate_regex.test($(this).val()))
+		$(this).css('border-color', '#FFA500');
+	else
+		$(this).css('border-color', '#00FF00');
+});
+$("#profile_form_submit").click(function () {
+	Utility.Form.post("/update_profile",
+		"#profile_form",
+		function (response) {
+			Utility.Form.get("view/members/worker/profile.html", function (response) {
+				$('#tabs').html(response);
+			});
+
+		});
+});
+});
+$("#edit_profile").click(function () {
+	$("#location").html(" ");
+	$("#work_categories").html(" ");
+	
+	$("#edit_first_name").val(oProfileResult[0]['first_name']);
+	$("#edit_last_name").val(oProfileResult[0]['last_name']);
+	$("#edit_title").val(oProfileResult[0]['title']);
+	$("#edit_hourly_rate").val(oProfileResult[0]['pay_rate']);
+	$("#edit_cover_letter").val(oProfileResult[0]['orig_description']);
+	Utility.Form.get("get_locations", function (jLocationResult) {
+		oLocationResult = $.parseJSON(jLocationResult);
+		location_length = oLocationResult.length;
+		for (var i = 0; i < location_length; i++)
+			$("#location").append("<option value='" + oLocationResult[i]['id'] + "'>" + oLocationResult[i]['name'] + "</option>");
+	});
+	Utility.Form.get("get_work_categories", function (jCategoryResult) {
+		oCategoryResult = $.parseJSON(jCategoryResult);
+		category_length = oCategoryResult.length;
+		for (var i = 0; i < category_length; i++) {
+			$("#work_categories").append('<tr><td><label class="category" for="category' + oCategoryResult[i]['id'] + '"><input type="checkbox" class="work_categories" id="work_category' + oCategoryResult[i]['id'] + '" name="categories[]" value="' + oCategoryResult[i]['id'] + '" /></td><td>' + oCategoryResult[i]['name'] + '</label></td></tr>');
+		}
+		Utility.Form.get("get_worker_categories", function (jWorkerCategories) {
+			oWorkerCategories = $.parseJSON(jWorkerCategories);
+			var category_length = oWorkerCategories[0].length;
+			for (var i = 0; i < category_length; i++) {
+				chosen_categories[oWorkerCategories[0][i]['work_category_id']] = oWorkerCategories[0][i]['work_category_id'];
+				$("#work_category" + oWorkerCategories[0][i]['work_category_id']).attr("checked", true);
+			}
+			if (oWorkerCategories[0].length == 1)
+				$("#original_category1").val(oWorkerCategories[0][0]['work_category_id']);
+			if (oWorkerCategories[0].length >= 1)
+				$("#original_category2").val(oWorkerCategories[0][1]['work_category_id']);
+
+			work_category_amount = oWorkerCategories[1]['work_category_amount'];
+
+			for (var i = 1; i < work_category_amount + 1; i++) {
+				if (i == oWorkerCategories[0][0]['work_category_id'] || i == oWorkerCategories[0][1]['work_category_id']) {
+					category_count++;
+							continue; // Skip the current iteration so the checkbox is not disabled.
+						}
+						$("#work_category" + i).attr("disabled", true);
+					}
+					vex.dialog.open({
+	    unsafeMessage: $("#profile_dialog").html(),
+	    callback: function (value) {
+	    },
+	    buttons: []
+	});
+				});
+$(".work_categories").change(function () {
+					// Getting rid of a Category
+					if ($(this).attr("checked") == "checked") {
+						$(this).attr("checked", false);
+						for (var i = 1; i <= 10; i++) {
+							$("#work_category" + i).attr("disabled", false);
+						}
+
+						chosen_categories[$(this).val()] = undefined;
+
+						category_count--;
+
+						// Adding a Category
+					} else if ($(this).attr("checked") == undefined) {
+						$(this).attr("checked", true);
+
+						chosen_categories[$(this).val()] = $(this).val();
+						for (var i = 1; i <= 10; i++) {
+							if (i == chosen_categories[i])
+								continue; // Skip the current iteration so the checkbox is not disabled.
+							if (category_count == 1) // Starting from 0,2 categories actually
+								$("#work_category" + i).attr("disabled", true);
+						}
+
+						category_count++;
+					}
+				});
+
+});
+
+});
+});
+</script>

@@ -1,0 +1,24 @@
+{
+    "$jason": {
+        "head": {
+        "actions": {
+            "displayBanner": {
+            "type": "$util.banner",
+            "options": {
+                "title": "Clicked",
+                "description": "Link {{$jason.url}} clicked!"
+            }
+            }
+        }
+        },
+        "body": {
+        "background": {
+            "type": "html",
+            "url": "https://truckdropp.com",
+            "action": {
+            "trigger": "displayBanner"
+            }
+        }
+        }
+    }
+}

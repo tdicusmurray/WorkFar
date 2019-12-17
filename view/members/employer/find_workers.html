@@ -1,0 +1,295 @@
+<style>
+.pay_rate {  font-weight: bold; }
+.name { font-size: 12px; }
+.title { font-size: 18px; }
+.worker { float:left; background-color:none; width:100px; margin:10px; z-index:1;cursor:pointer;}
+pre { font-size: 12px; }
+#search_results {width: 800px; padding:3px;margin-top:100px;}
+#search_profile { display: none; }
+#select_work_dialog { display: none; }
+.history { color:#000000 !important; border-radius: 7px;padding: 3px; margin: 3px;width: 170px;}
+#ranges {width:100px;}
+.fui-star-2 { text-indent: 100px; }
+#searching {}
+td { position:relative; left:-13px; top:25px; }
+#search {
+    position: fixed;
+    top: 220px;
+    z-index: 3;
+    width: 800px;
+    height: 75px;
+    margin: 0 auto;
+    background-color: rgba(52,73,94,0.8);
+    padding: 10px;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center;
+	margin-top: -13px;
+	padding-top: 25px;
+	z-index:99999;
+}
+#search_profile {
+	margin-top:100px;
+}
+#search_results{
+	position:relative;
+	overflow:hidden;
+	width: 800px;
+	padding-bottom: 20px;
+	margin-top: 100px;
+}
+#search_form {
+	width:100%;
+	height:100%;
+	display:flex;
+	justify-content:space-around;
+	align-items:center;
+}
+.rating_stars { color: #2ECC71; }
+
+#category_dropdown {
+	width: 200px;
+}
+#category_button {
+	font-size: 12px;
+}
+#category_id { display: none;}
+#location { display: none; }
+.profile_image { widborder-radius: 7px; 
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center; width:128px !important; height: 128px !important;}
+#work_applicant_interview { width: 30%;}
+.menu { color:#000000 !important;}
+#tabs { }
+td { left: !important 0px; }
+</style>
+<div id='searching'>
+		<div id="search">
+			<form id="search_form">
+				<input type='hidden' value='0' name='page' id='page' />
+				<span id='category_dropdown' class="btn-group">
+		            <button id='category_button' data-toggle="dropdown" class="btn btn-block btn-lg btn-success" type="button">All&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="caret"></span></button>
+		            <ul role="menu" class="dropdown-menu">
+		              <li><a class='menu category_menu_item'  href="#" value='0'>All</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='1'>Website Development</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='2'>Design, Media, Content</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='3'>Mobile Development</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='4'>Data Entry</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='5'>Writing</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='6'>Marketing</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='7'>Business, Accounting, Human Resources</a></li>
+		              <li><a class='menu category_menu_item' href="#" value='8'>Language Translations</a></li>
+		              <li><a class='menu category_menu_item' href="#" value='9'>IT</a></li>
+		              <li><a class='menu category_menu_item' href="#" value='10'>Engineering</a></li>
+					  <li><a class='menu category_menu_item' href="#" value='11'>Medical Advice</a></li>
+		            </ul>
+		            <input type='hidden' id="category_id" name="category_id" value='0' /> 
+					
+		       	</span>
+				<div id='hourly_budget_container'>
+					<label type="text" id="hourly_budget" name="hourly_budget" style="border: 0; color: #fff; font-weight: bold;"></label>
+					<input type="hidden" id="min_hourly_rate" name="min_hourly_rate" value="1" />
+					<input type="hidden" id="max_hourly_rate" name="max_hourly_rate" value="500" /><div id="slider-range"></div>
+				</div>
+				<div id='number_of_hours_container'>
+					<label type="text" id="num_hours" name="num_hours" style="border: 0; color: #fff; font-weight: bold;"></label>
+					<input type="hidden" id="min_hours_completed" name="min_hours_completed" value="0">
+					<input type="hidden" id="max_hours_completed" name="max_hours_completed" value="200" /><div id="slider-range2"></div>
+				</div>
+					<div id="slider-range2"></div>
+					<div id="star_rating">
+						<span class='fui-star-2 rating_stars' id="rating1"></span>
+						<span class='fui-star-2 rating_stars' id="rating2"></span>
+						<span class='fui-star-2 rating_stars' id="rating3"></span>
+						<span class='fui-star-2 rating_stars' id="rating4"></span>
+						<span class='fui-star-2 rating_stars' id="rating5"></span>
+						<input type="hidden" value="5" name="rating" id="rating" />
+					</div>
+				</div>
+			</form>
+		</div>
+
+<div id="search_results" class="relative">
+	
+</div>
+<div id="search_profile">
+
+</div>
+
+<script type="text/javascript">
+function getSearchResults() {
+	Utility.Form.post ('search_talent' , '#search_form', function(jUserResult) {
+		oUserResult = $.parseJSON(jUserResult);
+		var user_length = oUserResult.length;
+		$("#search_results").html(" ");
+		$("#search_results").html("<table><tr>");
+		if ( oUserResult[1] != false)
+			for ( var i = 1; i < user_length; i++ ) {
+				$("#search_results table tbody tr:last").append("<td><div class='worker' worker_id='" + oUserResult[i].id + "'><img src='" + oUserResult[i].photograph + "' width='64' height='64' /><br /><span class='title'>" + oUserResult[i].title + "</span><br /><span class='name'>" + oUserResult[i].first_name + " " + oUserResult[i].last_name + "</span><br /><span class='pay_rate'>$" + oUserResult[i].pay_rate + "/hr</span><br /><span class='user_rating'>" + Utility.Rating.getStars(oUserResult[i].rating) + "</span></div></td>");
+				if ( ((i % 8) == 0) ) $("#search_results table tbody").append("</tr><tr>");
+			}
+		else $("#search_results").append("<br>There are no workers that match your criteria");
+		$("#search_results table tbody").append("</tr></table>");
+		$('.worker').button().click(function() {
+			var findCurrentApplicant = $(this).attr('worker_id');
+			$.post('get_worker_profile',{ id: $(this).attr('worker_id') },function(jProfileResult) {
+				var oProfileResult = $.parseJSON(jProfileResult);
+				Utility.Form.get("employer_open_work",function(jWork) {
+					$.post('user_gigs',{ user_id: oProfileResult[0]['id'] },function(jGigResult) {
+					$("#search_profile").append("<img class='left profile_image' src='"+ oProfileResult[0]['photograph'] + "' width='64' height='64' /><div id='pay_rate' class='right'><span style='color:#2e6e9e;font-weight:bold;'>$" + oProfileResult[0]['pay_rate'] + "hr</span><br />" + Utility.Rating.getStars(oProfileResult[0]['rating']) + "<br /><div id='gigs'> </div></div><div id='name' class='left'><b>" + oProfileResult[0]['first_name'] + " " + oProfileResult[0]['last_name'] + "</b> : <div id='title' class='left'></div>" + oProfileResult[0]['title'] + "</div><input type='hidden' id='applicant_id' value='" + oProfileResult[0]['id'] + "' /><br />");
+						$(this).off("submit");
+						$(document).on("submit", ".buy_gig", function(event) {
+						    $(this).off("submit");
+						    $(".buy_gig_btn").each(function( index ) { $(this).prop('disabled',true); });
+
+							Utility.Form.post('/buy_gig',"#" + $(this).attr('id'), function(response) {});
+							event.preventDefault();
+						});
+					$("#search_profile").append("</div><div id='description' style='width: 400px;'><br /><br /><br />" + oProfileResult[0]['description'] + "</div><br />");
+					$("#search_profile").append("<div id='work_history'><u>Work History</u><br /></div>");
+					var oGigResult = $.parseJSON(jGigResult);
+					for ( var i = 0; i < oGigResult.length; i++ ) 
+						$("#gigs").append(oGigResult[i]['name'] + " " + oGigResult[i]['description'] + "<form id='buy_gig" + oGigResult[i]['id'] +  "' class='buy_gig'><input type='hidden' value='" + oGigResult[i]['price'] + "' name='gig_price' /><button class='buy_gig_btn btn btn-danger'>Instant Buy ($" + oGigResult[i]['price'] + ")</button></form>");
+
+					if (oProfileResult[1] != null) {
+						var work_history = "";
+						for (var i = 0; i < oProfileResult[1].length; i++) {
+							if (oProfileResult[1][i]['profile_comment'] != null) 
+								work_history += "<div class='left history'><b>" + oProfileResult[1][i]['title'] + "</b><i>" + oProfileResult[1][i]['profile_comment'] + "</i><br /><table><tr><td>Communication:</td><td>" + Utility.Rating.getMiniStar(oProfileResult[1][i]['communication']) + "</td></tr><tr><td>Knowledge:</td><td>" + Utility.Rating.getMiniStar(oProfileResult[1][i]['knowledge']) + "</td></tr><tr><td>Completion:</td><td>" + Utility.Rating.getMiniStar(oProfileResult[1][i]['completion']) + "</td></tr><tr><td>Availability:</td><td>" + Utility.Rating.getMiniStar(oProfileResult[1][i]['availability']) + "</td></tr></table></div>";
+							else work_history += "<div class='left history'><b>" + oProfileResult[1][i]['title'] + "</b><i>No Feedback yet.</i></div>";
+						}
+						$("#work_history").append(work_history);
+					}
+
+					$("#search_results").html( $("#search_profile").html() );
+					$("#search_profile").prepend("<center><form id='interview_worker_form'><select id='select_work' name='work_id'></select><br /><input type='hidden' name='worker_id' value='" + findCurrentApplicant + "' /><input type='submit' id='work_applicant_interview' class='btn btn-block btn-lg btn-success' value='Interview!' /></form></center>");
+					$("#interview_worker_form").submit(function() {
+						Utility.Form.post ("interview_worker", "#interview_worker_form", function (jInterviewResult) {
+							getSearchResults();
+							Utility.Form.get("view/members/employer/my_workers.html", function(data) {
+								$('#tabs').html(data);
+							});
+						});
+						return false;
+					});
+					oWork = $.parseJSON(jWork);
+					var work_length = oWork.length;
+					if ( work_length === 0 ) 
+						$("#select_work").html($("#select_work").html() + "<option value='0'>Choose Work</option>");
+					for (var i = 0; i < work_length; i++)
+						$("#select_work").html($("#select_work").html() + "<option value='" + oWork[i]['id'] + "'>" + oWork[i]['title'] + "</option>");
+					
+					
+				});
+			});
+		});
+						});
+	});
+}
+$(document).ready(function() {
+	getSearchResults();
+	$(".pagination a").click(function () {
+		$("#page").val($(this).html());
+		getSearchResults();
+	});
+	$(".location_menu_item").click(function() {
+		$("#location").val($(this).attr('value'));
+		$('#location_button').html($(this).html() + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='caret'></span>");
+		getSearchResults();
+	});
+	$(".category_menu_item").click(function() {
+		$("#category_id").val($(this).attr('value'));
+		$('#category_button').html($(this).html() + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='caret'></span>");
+		getSearchResults();
+	});
+	$( "#slider-range" ).slider({
+			range: true,
+			min: 1,
+			max: 500,
+			values: [ 1, 500 ],
+			change: function(event,ui) {
+				$("#page").val(0);
+				getSearchResults();
+			},
+			slide: function( event, ui ) {
+				$("#hourly_budget").html( "$" + ui.values[0] + "/hr - $" + ui.values[1] + "/hr");
+				$("#min_hourly_rate").val(ui.values[0]);
+				$("#max_hourly_rate").val(ui.values[1]);
+			}
+		});
+		$( "#hourly_budget" ).html(  "$" + $( "#slider-range" ).slider( "values", 0 ) + "/hr - $" + $( "#slider-range" ).slider( "values", 1 ) + "/hr" );
+
+		$( "#slider-range2" ).slider({
+			range: true,
+			min: 0,
+			max: 200,
+			values: [ 0, 200 ],
+			change: function(event,ui) {
+				$("#page").val(0);
+				getSearchResults();
+			},
+			slide: function( event, ui ) {
+				$( "#num_hours" ).html(ui.values[0] + " and " + ui.values[1] + " Hrs");
+				$("#min_hours_completed").val(ui.values[0]);
+				$("#max_hours_completed").val(ui.values[1]);
+			}
+		});
+		$( "#num_hours" ).html( $( "#slider-range2" ).slider( "values", 0 ) + " and " + $( "#slider-range2" ).slider( "values", 1 ) + " Hrs" );
+
+		$("#rating1").click(function() {
+			$("#rating1").fadeTo('slow', 1.0);
+			$("#rating2").fadeTo('slow', 0.5);
+			$("#rating3").fadeTo('slow', 0.5);
+			$("#rating4").fadeTo('slow', 0.5);
+			$("#rating5").fadeTo('slow', 0.5);
+			$("#rating").val(1);
+			$("#search_results").html(" ");
+			$("#page").val(0);
+			getSearchResults();
+		});
+		$("#rating2").click(function() {
+			$("#rating1").fadeTo('slow', 1.0);
+			$("#rating2").fadeTo('slow', 1.0);
+			$("#rating3").fadeTo('slow', 0.5);
+			$("#rating4").fadeTo('slow', 0.5);
+			$("#rating5").fadeTo('slow', 0.5);
+			$("#rating").val(2);
+			$("#search_results").html(" ");
+			$("#page").val(0);
+			getSearchResults();
+		});
+		$("#rating3").click(function() {
+			$("#rating1").fadeTo('slow', 1.0);
+			$("#rating2").fadeTo('slow', 1.0);
+			$("#rating3").fadeTo('slow', 1.0);
+			$("#rating4").fadeTo('slow', 0.5);
+			$("#rating5").fadeTo('slow', 0.5);
+			$("#rating").val(3);
+			$("#search_results").html(" ");
+			$("#page").val(0);
+			getSearchResults();
+		});
+		$("#rating4").click(function() {
+			$("#rating1").fadeTo('slow', 1.0);
+			$("#rating2").fadeTo('slow', 1.0);
+			$("#rating3").fadeTo('slow', 1.0);
+			$("#rating4").fadeTo('slow', 1.0);
+			$("#rating5").fadeTo('slow', 0.5);
+			$("#rating").val(4);
+			$("#search_results").html(" ");
+			getSearchResults();
+		});
+		$("#rating5").click(function() {
+			$("#rating2").fadeTo('slow', 1.0);
+			$("#rating3").fadeTo('slow', 1.0);
+			$("#rating4").fadeTo('slow', 1.0);
+			$("#rating5").fadeTo('slow', 1.0);
+			$("#rating").val(5);
+			$("#search_results").html(" ");
+			$("#page").val(0);
+			getSearchResults();
+		});
+		
+});
+</script>

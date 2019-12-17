@@ -1,0 +1,237 @@
+<style>
+#payment_form { width: 80%; }
+#populate {width:80%;}
+.form_error { color: #0000FF; display:none; }
+.login-field-icon {
+  position: absolute;
+  margin-top:-40px;
+  right: 15px;
+  font-size: 16px;
+  color: #bfc9ca;
+  -webkit-transition: all .25s;
+  transition: all .25s;
+}
+#charges th {
+  padding: 5px;
+}
+#payment_form {display:none;}
+#populate {display:none;}
+#totals { display: none;}
+#disputes_video_player { padding-bottom: 47px; }
+#disputes { display:none;}
+.StripeElement {
+  background-color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 3px 0 #e6ebf1;
+  -webkit-transition: box-shadow 150ms ease;
+  transition: box-shadow 150ms ease;
+}
+
+.StripeElement--focus {
+  box-shadow: 0 1px 3px 0 #cfd7df;
+}
+
+.StripeElement--invalid {
+  border-color: #fa755a;
+}
+
+.StripeElement--webkit-autofill {
+  background-color: #fefde5 !important;
+}
+</style>
+
+<center>
+<form id="payment_form">
+  <div class="form-row">
+  <div class="form-row">
+    <label for="card-element">
+    </label>
+    <div id="card-element">
+      <!-- a Stripe Element will be inserted here. -->
+    </div>
+
+    <!-- Used to display form errors -->
+    <div id="card-errors" role="alert"></div>
+  </div>
+
+  </div>
+    <button id="create_payment_account" class='btn btn-block btn-lg btn-success'>Create Payment Method</button>
+</form>
+<form id="token_form"> </form>
+</center>
+<div id='disputes'>
+  <h6>Recent Disputes</h6>
+  <table id='disputes_table'>
+    <tr><td>Last Sender</td><td>Message</td><td>Sent Time</td><td> </td></tr>
+  </table>
+  <div id='disputes_dialog' style='display:none;'>
+    <div id='disputes_video_player'> </div>
+    <form id='dispute_respond'>
+      <input type='hidden' name='dispute_payment_id' id='dispute_payment_id' value='' />
+      <input type='text' name='message' id='message' />
+      <input type='submit' value='Send' />
+    </form>
+  </div>
+</div>
+<div id='totals'>
+   <center>
+    <table class='right'>
+      <tr>
+        <th>Today</th><th>Last 7 Days</th><th>Last 14 Days</th><th>Last 30 days</th><th>This Year</th>
+      </tr>
+      <tr>
+        <td id='today'>50.00</td><td id='this_week'>100.00</td><td id='last_2weeks'>230.00</td><td id='last_month'>2,300</td><td id='this_year'>10,000</td>
+      </tr>
+    </table>
+    <table id='charges'>
+      <tr>
+        <th>Worker</th><th>Work Title</th><th>Amount</th><th>Date</th>
+      </tr>
+    </table>
+  </center>
+</div>
+<link href="view/members/worker/workfar_monitor/player/video-js.css" rel="stylesheet">
+<script src="view/members/worker/workfar_monitor/player/video.js"></script>
+<script>
+  videojs.options.flash.swf = "view/members/worker/workfar_monitor/player/video-js.swf";
+</script>
+<script type="text/javascript">
+window.dispute_id;
+window.worktime_monitor_id;
+$(document).ready(function () {
+    Utility.Form.get("view_disputes",function(jDisputes) {
+      var disputes = $.parseJSON(jDisputes);
+      if (disputes.length > 0) $("#disputes").show();
+      $("#disputes_table").append("<tr><td>" + disputes['first_name'] + " " + disputes['last_name']  + "</td><td>" + disputes['message'] + "</td><td>" + disputes['datetime'] + "</td><td><button dispute_id='" + disputes['id'] + "' class='view_dispute btn btn-success'>View</button></td></tr>");
+
+      $(".view_dispute").click(function() {
+        window.dispute_id = $(this).attr("dispute_id");
+        Utility.Form.get("view_dispute/" + $(this).attr("dispute_id"),function(jDispute) {
+          var dispute = $.parseJSON(jDispute);
+          $("#disputes_dialog").dialog({
+            height: 450,
+            width: 550,
+            modal: true
+          });
+
+          $("#disputes_dialog").parent().css("top","0px");
+          $("#disputes_dialog").html("<div id='disputes_video_player'></div><form id='dispute_respond'> <input type='hidden' name='dispute_payment_id' id='dispute_payment_id' value='' /> <input type='text' name='message' id='message' /> <input type='submit' value='Send' /> </form>");
+          for (var i = 0; i < dispute.length; i++) {
+            window.worktime_monitor_id = dispute[i]['worktime_monitor_id'];
+            Utility.Form.get("dispute_video/" + window.worktime_monitor_id,function(video_html) {
+              $("#disputes_video_player").html(video_html);
+                var player = videojs(document.getElementById($("#dispute_video").find("video").attr("id")), { /* Options */ }, function() {
+                $("#dispute_video").find("video").parent().css({width:"500px",height:"300px"});
+                this.play(); 
+                this.on('ended', function() {
+                console.log('awww...over so soon?');
+                });
+              });
+                $("#disputes_dialog").scrollTop($("#disputes_dialog").height());
+            });
+            $("#disputes_dialog").append("<div class='dispute_message'>" +dispute[i]['first_name'] + " " + dispute[i]['last_name'] + "<span style='font-size:10px;color:#00FF00;'>" + dispute[i]['datetime'] + "</span><br>" + dispute[i]['message'] + "</div>");
+            
+          }
+          
+          $("#dispute_respond").submit(function() {
+            $("#dispute_payment_id").val(window.dispute_id);
+            Utility.Form.post("send_dispute_message","#dispute_respond",function(jDispute) {
+              var dispute = $.parseJSON(jDispute);
+               $('#message').val("");
+               $("#disputes_dialog").append(dispute['first_name'] + " " + dispute['last_name'] + "<span style='font-size:10px;color:#00FF00;'>" + dispute['datetime'] + "</span><br>" + dispute['message'] + "<br>");
+               $("#disputes_dialog").scrollTop($("#disputes_dialog").height());
+              });
+            return false;
+          });
+
+        });
+      });
+    });
+    Utility.Form.get("customer_exists",function(response) {
+      var exists = $.parseJSON(response);
+
+      if (exists[0] == true) {
+        $("#totals").show();
+        Utility.Form.get("list_charges",function(response) {
+            response = $.parseJSON(response);
+
+            for (var i = 0; i < response[1].length; i++ )
+              $("#charges").append("<tr><td>" + response[1][i]['first_name'] + " " + response[1][i]['last_name'] + "</td><td>" + response[1][i]['title'] + "</td><td>$" + response[1][i]['amount'] / 100 + "</td><td>" + response[1][i]['created'] + "</td></tr>");
+                  $("#today").html("$" + response[2]['today'] / 100);
+                  $("#this_week").html("$" + response[2]['this_week'] / 100);
+                  $("#last_2weeks").html("$" + response[2]['last_week'] / 100);
+                  $("#last_month").html("$" + response[2]['30day'] / 100);
+                  $("#this_year").html("$" + response[2]['365day'] / 100);
+        });
+      } else {
+         $("#populate").show();
+         $("#payment_form").show();
+      }
+
+    });
+    function stripeResponseHandler(response) {
+       var $form = $('#payment_form');
+
+       if (response.error) {
+            $form.find('.payment_errors').text(response.error.message);
+       } else {
+            var token = response.id;
+            $("#token_form").append($('<input type="hidden" name="card_href" />').val(token));
+           
+            $("#payment_page").hide('clip');
+            $.post("create_card_profile", $("#token_form").serialize(), function() {
+                $("#response").html("Perfect! You can start hiring workers now.");
+            });
+       }
+    }
+    var stripe = Stripe('pk_live_b8ySstxkrT6eNWAQRqwJsPO4');
+        var elements = stripe.elements();
+          var style = {
+            base: {
+              color: '#32325d',
+              lineHeight: '24px',
+              fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+              fontSmoothing: 'antialiased',
+              fontSize: '16px',
+              '::placeholder': {
+                color: '#aab7c4'
+              }
+            },
+            invalid: {
+              color: '#fa755a',
+              iconColor: '#fa755a'
+            }
+          };
+          var card = elements.create('card', {style: style});
+          card.mount('#card-element');
+
+          card.addEventListener('change', function(event) {
+            var displayError = document.getElementById('card-errors');
+            if (event.error) {
+              displayError.textContent = event.error.message;
+            } else {
+              displayError.textContent = '';
+            }
+          });
+
+          var form = document.getElementById('payment_form');
+          form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            stripe.createToken(card).then(function(result) {
+              if (result.error) {
+                var errorElement = document.getElementById('card-errors');
+                errorElement.textContent = result.error.message;
+              } else {
+                  $("#token_form").append($('<input type="hidden" name="card_href" />').val(result.token.id));
+                 
+                  $("#payment_page").hide('clip');
+                  Utility.Form.post("create_card_profile", "#token_form", function() {
+                    $("#payment_form").html("Perfect! You can start hiring workers now.");
+                  });
+              }
+            });
+          });
+});
+</script>

@@ -1,0 +1,651 @@
+<style>
+#end_work_dialog { display:none; }
+#end_work { width: 30%;}
+#workers_accordion { float: left; width: 100%; display:none; }
+#view_applicant { display: none; }
+#interview_worker_dialog { display: none; }
+
+.pay_rate { color: #2e6e9e; font-weight: bold; }
+.name { font-size: 12px; }
+.title { font-size: 18px; }
+.applicant { width: 150px; border: 1px solid #000000; border-radius: 7px;padding: 3px; margin: 3px;}
+pre { font-size: 12px; }
+
+.history { border: 1px solid #000000;  width: 45%; border-radius: 7px;padding: 3px; margin: 3px;}
+.history table { font-size: 14px; }
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active {
+	background-color:none !important;
+	font-size:18px !important;
+	color: #C0392B !important;
+	text-align:center;
+}
+.ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default {
+	background-color:none !important;
+	font-size:18px !important;
+	color: #ECF0F1 !important;
+	text-align:center;
+}
+.hired_worker { float:left; height:200px; width:200px; margin:10px;color:#000000 !important; }
+.front { border: 1px solid #000000; color:#000000 !important; }
+.employer_view { margin-left: 0px; }
+.photograph { border-radius: 7px; }
+.work_applicant_interview_view { border-radius: 7px; padding: 10px; cursor: pointer; }
+.work_applicant_view { border-radius: 7px; padding: 10px; cursor: pointer; float: left; }
+.flip-container {
+	perspective: 1000px;
+}
+.flip-container:hover .flipper, .flip-container.hover .flipper {
+	transform: rotateY(180deg);
+}
+
+.flip-container, .front, .back {
+	width: 320px;
+	height: 150px;
+}
+
+.flipper {
+	transition: 0.6s;
+	transform-style: preserve-3d;
+
+	position: relative;
+}
+
+.front, .back {
+	backface-visibility: hidden;
+
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.front {
+	z-index: 2;
+	transform: rotateY(0deg);
+}
+.back {
+	transform: rotateY(180deg);
+}
+</style>
+<div id="workers_accordion">
+	<h3>Hired Workers</h3>
+	<div id="hired_work">
+
+	</div>
+	<h3>Interviews</h3>
+	<div id="interviews_tabs">
+		<ul id="interviews_nav">
+			
+		</ul>
+	</div>
+	<h3>Worker Applications</h3>
+	<div id="work_applicants">
+		<ul id="work_applicants_nav">
+			
+		</ul>
+	</div>
+	<h3>Completed Work</h3>
+	<div id="closed_work">
+	
+	</div>
+</div>
+<div id="view_applicant">
+
+</div>
+<div id="end_work_dialog" title="End Work">
+	<form id="end_work_form">
+		Profile Comment: <br /><textarea id="profile_comment" name="profile_comment" cols='50' rows='5'></textarea><br />
+		<input type="hidden" name="communication" id="communication" />
+		<input type="hidden" name="knowledge" id="knowledge" />
+		<input type="hidden" name="completion" id="completion" />
+		<input type="hidden" name="availability" id="availability" />
+		<input type="hidden" name="work_id" id="work_id" />
+		<table>
+			<tr>
+				<td>Communication:</td>
+				<td>
+					<span class='fui-star-2 rating_stars' id="communication1" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="communication2" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="communication3" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="communication4" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="communication5" class="rating_stars"></span><br />
+				</td>
+			</tr>
+			<tr>
+				<td>Knowledge:</td>
+				<td>
+					<span class='fui-star-2 rating_stars' id="knowledge1" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="knowledge2" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="knowledge3" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="knowledge4" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="knowledge5" class="rating_stars"></span>
+				</td>
+			</tr>
+			<tr>
+				<td>Completion:</td>
+				<td>
+					<span class='fui-star-2 rating_stars' id="completion1" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="completion2" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="completion3" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="completion4" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="completion5" class="rating_stars"></span>
+				</td>
+			</tr>
+			<tr>
+				<td>Availability:</td>
+				<td>
+					<span class='fui-star-2 rating_stars' id="availability1" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="availability2" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="availability3" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="availability4" class="rating_stars"></span>
+					<span class='fui-star-2 rating_stars' id="availability5" class="rating_stars"></span>
+				</td>
+			</tr>
+		</table>
+		<input class="right btn btn-block btn-lg btn-success" id="end_work" type="submit" value="End Work" />
+	</form>
+</div>
+<link href="view/members/worker/workfar_monitor/player/video-js.css" rel="stylesheet">
+<script src="view/members/worker/workfar_monitor/player/video.js"></script>
+<script>
+  videojs.options.flash.swf = "view/members/worker/workfar_monitor/player/video-js.swf";
+</script>
+<script type="text/javascript">
+
+window.hireinterview = false;
+function getProfile(work_applicant_id,worker_id) {
+	currentApplicant = work_applicant_id;
+	$("#view_applicant").html(" ");
+	$("#view_applicant").dialog({
+		height: 480,
+		width: 450,
+		modal: true
+	});
+	$.post('get_worker_profile',{ id: worker_id },function(jProfileResult) {
+		oProfileResult = $.parseJSON(jProfileResult);
+		if (oProfileResult[0]['has_profile'] == 1 ) {
+			$("#view_applicant").html("<form id='applicant_form'><input type='hidden' name='work_applicant_id' value='" + currentApplicant + "' /></form><center><button id='hire' class='btn btn-block btn-lg btn-success'>Hire</button><button id='interview' class='btn btn-block btn-lg btn-success'>Interview</button></center>"
+				+ "<img class='left' src='"
+				+ oProfileResult[0]['photograph'] + "' width='128' height='128' /><div id='pay_rate' class='right'><span style='color:#2e6e9e;font-weight:bold;'>$"
+				+ oProfileResult[0]['pay_rate'] + "/hr</span><br />" + Utility.Rating.getStars(oProfileResult[0]['rating']) + "<br /><br /></div><div id='name' class='left'>" 
+				+ oProfileResult[0]['first_name'] + " " 
+				+ oProfileResult[0]['last_name'] + "<div id='title' class='left'></div><br>"
+				+ oProfileResult[0]['title'] + "</div><br />");
+
+			if (window.hireinterview) {
+				$("#interview").hide();
+				$("#hire").button().show();
+			} else {
+				$("#hire").hide();
+				$("#interview").button().show();
+			}
+			
+			
+			$("#view_applicant").html( $("#view_applicant").html() + "</div><br /><br /><div id='description' style='width: 400px;'><br /><br /><br />"
+								+ oProfileResult[0]['description'] + "</div><br />");
+			$("#view_applicant").html( $("#view_applicant").html() + "<div id='work_history'><u>Work History</u><br /></div>");
+			if (oProfileResult[1] != null) {
+				var work_history = "";
+				for (var i = 0; i < oProfileResult[1].length; i++) {
+					work_history += "<div class='left history'><b>" + oProfileResult[1][i]['title'] + "</b><br><i>" + oProfileResult[1][i]['profile_comment'] + "</i><br /><table><tr><td>Communication:</td><td>" + Utility.Rating.getStars(oProfileResult[1][i]['communication']) + "</td></tr><tr><td>Knowledge:</td><td>" + Utility.Rating.getStars(oProfileResult[1][i]['knowledge']) + "</td></tr><tr><td>Completion:</td><td>" + Utility.Rating.getStars(oProfileResult[1][i]['completion']) + "</td></tr><tr><td>Availability:</td><td>" + Utility.Rating.getStars(oProfileResult[1][i]['availability']) + "</td></tr></table></div>";
+				}
+				$("#work_history").append(work_history);
+			}
+		}
+	});
+}
+function displayWork () {
+	Utility.Form.get('employer_work', function(jWork) {
+		oWork = $.parseJSON(jWork);
+		var work_length = oWork.length;
+		$("#hired_work").html( " " );
+		$("#closed_work").html( " " );
+		$("#work_applicants").html( "<ul id='work_applicants_nav'> </ul>" );
+		$("#interviews_tabs").html( "<ul id='interviews_nav'> </ul>" );
+		for ( var i = 0; i < work_length; i++ ) {
+			if (oWork[i]['status_id'] == 1) {
+				$("#interviews_nav").append("<li><a href='#interview_work" + oWork[i]['id'] + "'>" + oWork[i]['title'] + "</a></li>" );
+				$("#interviews_tabs").append("<div id='interview_work" + oWork[i]['id'] + "' work_id='" + oWork[i]['id'] + "'> </div>");
+				
+				$.post ('work_interviews',{ work_id: oWork[i]['id'] }, function(jApplicant) {
+					oApplicant = $.parseJSON(jApplicant);
+					var app_length = oApplicant.length;
+					if (app_length >= 1)
+						$("#interview_work" + oApplicant[0]['work_id']).html(" ");
+					for ( var j = 0; j < app_length; j++ )
+						$("#interview_work" + oApplicant[j]['work_id']).html( $("#interview_work" + oApplicant[j]['work_id']).html() + "<div class='work_applicant_interview_view applicant relative front' worker_id='" + oApplicant[j]['id'] + "' work_applicant_id='" + oApplicant[j]['work_applicant_id'] + "'><center><img src='" + oApplicant[j]['photograph'] + "' width='64' height='64' /><br /><span class='title'>" + oApplicant[j]['title'] + "</span><br /><span class='name'>" + oApplicant[j]['first_name'] + " " + oApplicant[j]['last_name'] + "</span><br /><span class='pay_rate'>$" + oApplicant[j]['pay_rate'] + "/hr</span><br /><span class='user_rating'>" + Utility.Rating.getStars(oApplicant[j]['rating']) + "</span></center></div>");
+					$('.applicant').button();
+				});
+				$("#work_applicants_nav").html( $("#work_applicants_nav").html() + "<li><a href='#applicant_work" + oWork[i]['id'] + "'>" + oWork[i]['title'] + "</a></li>" );
+				$("#work_applicants").html( $("#work_applicants").html() + "<div id='applicant_work" + oWork[i]['id'] + "' work_id='" + oWork[i]['id'] + "'> </div>");
+
+				$.post ('work_applicants',{ work_id: oWork[i]['id'] }, function(jApplicant) {
+					oApplicant = $.parseJSON(jApplicant);
+					var app_length = oApplicant.length;
+					if (app_length >= 1)
+						$("#applicant_work" + oApplicant[0]['work_id']).html(" ");
+					for ( var j = 0; j < app_length; j++ )
+						if ( oApplicant[j]['interview_exists'] == null)
+							$("#applicant_work" + oApplicant[j]['work_id']).html( $("#applicant_work" + oApplicant[j]['work_id']).html() + "<div class='work_applicant_view applicant relative front' worker_id='" + oApplicant[j]['id'] + "' work_applicant_id='" + oApplicant[j]['work_applicant_id'] + "'><img src='" + oApplicant[j]['photograph'] + "' width='64' height='64' /><br /><span class='title'>" + oApplicant[j]['title'] + "</span><br /><span class='name'>" + oApplicant[j]['first_name'] + " " + oApplicant[j]['last_name'] + "</span><br /><span class='pay_rate'>$" + oApplicant[j]['pay_rate'] + "/hr</span><br /><span class='user_rating'>" + Utility.Rating.getStars(oApplicant[j]['rating']) + "</span></div>");
+					$('.applicant').button();
+				});
+
+			} else if (oWork[i]['status_id'] == 2) {
+				$("#hired_work").html( $("#hired_work").html() + "<div class='hired_worker flip-container' ontouchstart='this.classList.toggle(\"hover\");' id='work"+ oWork[i]['id'] + "'><div class='flipper'><div class='back'><a href='#' class='work_history btn btn-block btn-lg btn-info' id='" + oWork[i]['id'] +"'>Work History</a><br><a href='#' work_id='" + oWork[i]['id'] + "' class='end_work btn btn-block btn-lg btn-warning'>End Work</a></div><div class='front'><center><img src='" + oWork[i]['photograph'] + "' class='photograph' width='64' height='64' /><br /><b>" + oWork[i]['title'] + "</b><br><b>$" + oWork[i]['hourly_rate'] + "/hr</b><br /><b class='worker'>" + oWork[i]['first_name'] + " " + oWork[i]['last_name'] +  "</b></center></div></div></div>");
+			} else if (oWork[i]['status_id'] == 3) {
+				$("#closed_work").html( $("#closed_work").html() + "<div id='work" + oWork[i]['id'] + "'><table><tr><td><h6>" + oWork[i]['title'] + "</h6></td><td><form id='hire_again_form" + oWork[i]['id'] + "'><input type='hidden' value='" + oWork[i]['id'] + "' name='work_id' /></form><a href='#' work_id='" + oWork[i]['id'] + "' class='hire_again'>Hire again.</a></td></tr><tr><td>" +  oWork[i]['first_name'] + " " +  oWork[i]['last_name'] + "</td><td>Total Paid: $" + oWork[i]['payment_total']+ "</td></tr></table></div>" );
+				
+				if (oWork[i]['feedback_exists'] == null)
+					$("#closed_work").html( $("#closed_work").html() + "<a href='#' work_id='" + oWork[i]['id'] + "' class='rate_work'>Rate Work</a>");
+			}
+		}
+		$("#interviews_tabs").tabs({
+			activate: function(event,ui) {
+				$.post ('work_interviews',{ work_id: $(event.currentTarget.hash).attr("work_id") }, function(jApplicant) {
+					oApplicant = $.parseJSON(jApplicant);
+					var app_length = oApplicant.length;
+					if (app_length >= 1)
+						$("#interview_work" + oApplicant[0]['work_id']).html(" ");
+					for ( var j = 0; j < app_length; j++ ) 
+						$("#interview_work" + oApplicant[j]['work_id']).html( $("#interview_work" + oApplicant[j]['work_id']).html() + "<div class='work_applicant_interview_view applicant relative' worker_id='" + oApplicant[j]['id'] + "' work_applicant_id='" + oApplicant[j]['work_applicant_id'] + "'><center><img src='" + oApplicant[j]['photograph'] + "' width='64' height='64' /><br /><span class='title'>" + oApplicant[j]['title'] + "</span><br /><span class='name'>" + oApplicant[j]['first_name'] + " " + oApplicant[j]['last_name'] + "</span><br /><span class='pay_rate'>$" + oApplicant[j]['pay_rate'] + "/hr</span><br /><span class='user_rating'>" + Utility.Rating.getStars(oApplicant[j]['rating']) + "</span></center></div>");
+					$('.applicant').button();
+				});
+			}
+		});
+		$("#work_applicants").tabs({
+			activate: function(event,ui) {
+				$.post ('work_applicants',{ work_id: $(event.currentTarget.hash).attr("work_id") }, function(jApplicant) {
+					oApplicant = $.parseJSON(jApplicant);
+					var app_length = oApplicant.length;
+					if (app_length >= 1)
+						$("#applicant_work" + oApplicant[0]['work_id']).html(" ");
+					for ( var j = 0; j < app_length; j++ )
+						if ( oApplicant[j]['interview_exists'] == null )
+							$("#applicant_work" + oApplicant[j]['work_id']).html( $("#applicant_work" + oApplicant[j]['work_id']).html() + "<div class='work_applicant_view applicant relative front' worker_id='" + oApplicant[j]['id'] + "' work_applicant_id='" + oApplicant[j]['work_applicant_id'] + "'><center><img src='" + oApplicant[j]['photograph'] + "' width='64' height='64' /><br /><span class='title'>" + oApplicant[j]['title'] + "</span><br /><span class='name'>" + oApplicant[j]['first_name'] + " " + oApplicant[j]['last_name'] + "</span><br /><span class='pay_rate'>$" + oApplicant[j]['pay_rate'] + "/hr</span><br /><span class='user_rating'>" + Utility.Rating.getStars(oApplicant[j]['rating']) + "</span></center></div>");
+					$('.applicant').button();
+				});
+			}
+		});
+		$("#workers_accordion").accordion({
+			heightStyle: "content",
+			autoheight: false,
+			collapsible: true,
+			alwaysOpen: false
+	    });
+	    $("#workers_accordion").show();
+	});
+}
+function interviewApplicant() {
+	Utility.Form.post ('interview_applicant' , '#applicant_form', function(jResult) {
+		$("#view_applicant").dialog("close");
+			Utility.Form.get("view/members/employer/my_workers.html", function(data) {
+				$('#tabs').html(data);
+			});
+	});
+}
+function hireApplicant() {
+	Utility.Form.post ('hire_applicant' , '#applicant_form', function(jResult) {
+		if (jResult != "") 
+			alert("Enter your credit card under Payment");
+		else {
+			$("#view_applicant").dialog("close");
+			Utility.Form.get("view/members/employer/my_workers.html", function(data) {
+				$('#tabs').html(data);
+			});
+		}
+	});
+}
+$(document).ready(function() {
+	displayWork();
+	var currentApplicant;
+
+	$("#interviews_tabs").on("click", ".work_applicant_interview_view",function() {
+		window.hireinterview = true;
+		getProfile($(this).attr('work_applicant_id'),$(this).attr('worker_id'));
+	});
+	$("#work_applicants").on("click", ".work_applicant_view",function() {
+		window.hireinterview = false;
+		getProfile($(this).attr('work_applicant_id'),$(this).attr('worker_id'));
+	});
+	$("#hire_again_form").on("click", ".hire_again",function() {
+		Utility.Form.post ("hire_again","#hire_again_form" + $(this).attr("work_id"), function (jResult) {
+
+		});
+	});
+	$("#view_applicant").on("click", "#hire",function() {
+		hireApplicant();
+	});
+	$("#view_applicant").on("click", "#interview",function() {
+		interviewApplicant();
+	});
+	
+	$("#closed_work").on("click", ".rate_work", function() {
+	
+		setDefaults($(this).attr("work_id"));
+		$("#end_work").button();
+		$("#end_work").val("Rate Work");
+		$("#end_work_form").off('submit');
+		$("#end_work_form").submit(function() {
+			Utility.Form.post ("employer_rate_work", "#end_work_form",
+			function (jEndResult) {
+				oEndResult = $.parseJSON(jEndResult);
+
+				if (oEndResult['response'] == 1) {
+					$("#end_work_dialog").dialog("close");
+					//$("#work" + oEndResult['work_id']).hide();
+					Utility.Form.get("view/members/employer/my_workers.html", function(data) {
+						$('#tabs').html(data);
+					});
+				}
+			});
+			return false;
+		});
+		
+		$("#end_work_dialog").dialog({
+			height: 400,
+			width: 450,
+			modal: true
+		});
+		$("#end_work_dialog").dialog('option', 'title', 'Rate Work');
+	});
+	$("#end_work_form").on("click", ".end_work", function() {
+		setDefaults($(this).attr("work_id"));
+		$("#end_work").button();
+		$("#end_work").val("End Work");
+		$("#end_work_form").off('submit');
+		$("#end_work_form").submit(function() {
+			Utility.Form.post ("employer_end_work", "#end_work_form", function (jEndResult) {
+				oEndResult = $.parseJSON(jEndResult);
+
+				if (oEndResult['response'] == 1) {
+					$("#end_work_dialog").dialog("close");
+					$("#work" + oEndResult['work_id']).hide();
+					Utility.Form.get("view/members/employer/my_workers.html", function(data) {
+						$('#tabs').html(data);
+					});
+				}
+			}); 
+			return false;
+		});
+		
+		$("#end_work_dialog").dialog({
+			height: 400,
+			width: 450,
+			modal: true
+		});
+		$("#end_work_dialog").dialog('option', 'title', 'End Work');
+	});
+	$("#hired_work").on("click", ".work_history",function() {
+		Utility.Form.get("employer_history/" + $(this).attr("id"), function(response) {
+			$("#hired_work").html("<div id='selected'> </div>" + response);
+
+			$(".employer_view").click(function() {
+				$("#selected").html($(this).html());
+				$("#selected").find("video").animate({width:"900px",height:"300px"});
+				$("#hired_work").prepend("<button class='btn' id='dispute_payment'>Dispute Payment</button><div id='dispute_payment_dialog' style='display:none;'><form id='dispute_payment_form'>Message:<br><textarea name='dispute_message' style='width:400px; height: 100px;'></textarea><input type='hidden' value='" + $("#selected").find("video").attr("id") + "' name='dispute_payment_id' /><input type='submit' value='Create Dispute' class='btn'/></form></div>");
+				$("#dispute_payment").button();
+				$("#dispute_payment").click(function() {
+					$("#dispute_payment_dialog").dialog({
+						height: 300,
+						width: 450,
+						modal: true
+					});
+					$("#dispute_payment_dialog").parent().css("top","0px");
+					$("#dispute_payment_form").submit(function () {
+						Utility.Form.post("dispute_payment","#dispute_payment_form",function(jResponse) {
+							$("#dispute_payment_dialog").dialog("close");
+						});
+						return false;
+					});
+				});
+				var player = videojs(document.getElementById($("#selected").find("video").attr("id")), { /* Options */ }, function() {
+				  $("#selected").find("video").parent().css({width:"900px",height:"500px"});
+				  this.play(); 
+				  this.on('ended', function() {
+				    console.log('awww...over so soon?');
+				  });
+				});
+			});
+		});
+		$("#back").button().click(function() {
+			$("#hired_works").html("");
+			$("#work_applicants").html("");
+			$("#closed_works").html("");
+			Utility.Form.get("view/members/employer/my_workers.html", function(data) {
+				$('#tabs').html(data);
+			});
+		});
+	});
+	function setDefaults(work_id) {
+		$("#work_id").val(work_id);
+		// Set default values
+		$("#communication").val(0);
+		$("#knowledge").val(0);
+		$("#completion").val(0);
+		$("#availability").val(0);
+		$("#profile_comment").val("");
+		$("#availability1").fadeTo('fast', 0.5);
+		$("#availability2").fadeTo('fast', 0.5);
+		$("#availability3").fadeTo('fast', 0.5);
+		$("#availability4").fadeTo('fast', 0.5);
+		$("#availability5").fadeTo('fast', 0.5);
+		$("#communication1").fadeTo('fast', 0.5);
+		$("#communication2").fadeTo('fast', 0.5);
+		$("#communication3").fadeTo('fast', 0.5);
+		$("#communication4").fadeTo('fast', 0.5);
+		$("#communication5").fadeTo('fast', 0.5);
+		$("#knowledge1").fadeTo('fast', 0.5);
+		$("#knowledge2").fadeTo('fast', 0.5);
+		$("#knowledge3").fadeTo('fast', 0.5);
+		$("#knowledge4").fadeTo('fast', 0.5);
+		$("#knowledge5").fadeTo('fast', 0.5);
+		$("#completion1").fadeTo('fast', 0.5);
+		$("#completion2").fadeTo('fast', 0.5);
+		$("#completion3").fadeTo('fast', 0.5);
+		$("#completion4").fadeTo('fast', 0.5);
+		$("#completion5").fadeTo('fast', 0.5);
+		
+		
+		$("#communication1").click(function() {
+			$("#communication1").fadeTo('fast', 1.0);
+			$("#communication2").fadeTo('fast', 0.5);
+			$("#communication3").fadeTo('fast', 0.5);
+			$("#communication4").fadeTo('fast', 0.5);
+			$("#communication5").fadeTo('fast', 0.5);
+			$("#communication").val(1);
+		});
+		$("#communication2").click(function() {
+			$("#communication1").fadeTo('fast', 1.0);
+			$("#communication2").fadeTo('fast', 1.0);
+			$("#communication3").fadeTo('fast', 0.5);
+			$("#communication4").fadeTo('fast', 0.5);
+			$("#communication5").fadeTo('fast', 0.5);
+			$("#communication").val(2);
+		});
+		$("#communication3").click(function() {
+			$("#communication1").fadeTo('fast', 1.0);
+			$("#communication2").fadeTo('fast', 1.0);
+			$("#communication3").fadeTo('fast', 1.0);
+			$("#communication4").fadeTo('fast', 0.5);
+			$("#communication5").fadeTo('fast', 0.5);
+			$("#communication").val(3);
+		});
+		$("#communication4").click(function() {
+			$("#communication1").fadeTo('fast', 1.0);
+			$("#communication2").fadeTo('fast', 1.0);
+			$("#communication3").fadeTo('fast', 1.0);
+			$("#communication4").fadeTo('fast', 1.0);
+			$("#communication5").fadeTo('fast', 0.5);
+			$("#communication").val(4);
+		});
+		$("#communication5").click(function() {
+			$("#communication1").fadeTo('fast', 1.0);
+			$("#communication2").fadeTo('fast', 1.0);
+			$("#communication3").fadeTo('fast', 1.0);
+			$("#communication4").fadeTo('fast', 1.0);
+			$("#communication5").fadeTo('fast', 1.0);
+			$("#communication").val(5);
+		});
+		$("#knowledge1").click(function() {
+			$("#knowledge1").fadeTo('fast', 1.0);
+			$("#knowledge2").fadeTo('fast', 0.5);
+			$("#knowledge3").fadeTo('fast', 0.5);
+			$("#knowledge4").fadeTo('fast', 0.5);
+			$("#knowledge5").fadeTo('fast', 0.5);
+			$("#knowledge").val(1);
+		});
+		$("#knowledge2").click(function() {
+			$("#knowledge1").fadeTo('fast', 1.0);
+			$("#knowledge2").fadeTo('fast', 1.0);
+			$("#knowledge3").fadeTo('fast', 0.5);
+			$("#knowledge4").fadeTo('fast', 0.5);
+			$("#knowledge5").fadeTo('fast', 0.5);
+			$("#knowledge").val(2);
+		});
+		$("#knowledge3").click(function() {
+			$("#knowledge1").fadeTo('fast', 1.0);
+			$("#knowledge2").fadeTo('fast', 1.0);
+			$("#knowledge3").fadeTo('fast', 1.0);
+			$("#knowledge4").fadeTo('fast', 0.5);
+			$("#knowledge5").fadeTo('fast', 0.5);
+			$("#knowledge").val(3);
+		});
+		$("#knowledge4").click(function() {
+			$("#knowledge1").fadeTo('fast', 1.0);
+			$("#knowledge2").fadeTo('fast', 1.0);
+			$("#knowledge3").fadeTo('fast', 1.0);
+			$("#knowledge4").fadeTo('fast', 1.0);
+			$("#knowledge5").fadeTo('fast', 0.5);
+			$("#knowledge").val(4);
+		});
+		$("#knowledge5").click(function() {
+			$("#knowledge1").fadeTo('fast', 1.0);
+			$("#knowledge2").fadeTo('fast', 1.0);
+			$("#knowledge3").fadeTo('fast', 1.0);
+			$("#knowledge4").fadeTo('fast', 1.0);
+			$("#knowledge5").fadeTo('fast', 1.0);
+			$("#knowledge").val(5);
+		});
+		$("#availability1").click(function() {
+			$("#availability1").fadeTo('fast', 1.0);
+			$("#availability2").fadeTo('fast', 0.5);
+			$("#availability3").fadeTo('fast', 0.5);
+			$("#availability4").fadeTo('fast', 0.5);
+			$("#availability5").fadeTo('fast', 0.5);
+			$("#availability").val(1);
+		});
+		$("#availability2").click(function() {
+			$("#availability1").fadeTo('fast', 1.0);
+			$("#availability2").fadeTo('fast', 1.0);
+			$("#availability3").fadeTo('fast', 0.5);
+			$("#availability4").fadeTo('fast', 0.5);
+			$("#availability5").fadeTo('fast', 0.5);
+			$("#availability").val(2);
+		});
+		$("#availability3").click(function() {
+			$("#availability1").fadeTo('fast', 1.0);
+			$("#availability2").fadeTo('fast', 1.0);
+			$("#availability3").fadeTo('fast', 1.0);
+			$("#availability4").fadeTo('fast', 0.5);
+			$("#availability5").fadeTo('fast', 0.5);
+			$("#availability").val(3);
+		});
+		$("#availability4").click(function() {
+			$("#availability1").fadeTo('fast', 1.0);
+			$("#availability2").fadeTo('fast', 1.0);
+			$("#availability3").fadeTo('fast', 1.0);
+			$("#availability4").fadeTo('fast', 1.0);
+			$("#availability5").fadeTo('fast', 0.5);
+			$("#availability").val(4);
+		});
+		$("#availability5").click(function() {
+			$("#availability1").fadeTo('fast', 1.0);
+			$("#availability2").fadeTo('fast', 1.0);
+			$("#availability3").fadeTo('fast', 1.0);
+			$("#availability4").fadeTo('fast', 1.0);
+			$("#availability5").fadeTo('fast', 1.0);
+			$("#availability").val(5);
+		});
+		$("#knowledge1").click(function() {
+			$("#knowledge1").fadeTo('fast', 1.0);
+			$("#knowledge2").fadeTo('fast', 0.5);
+			$("#knowledge3").fadeTo('fast', 0.5);
+			$("#knowledge4").fadeTo('fast', 0.5);
+			$("#knowledge5").fadeTo('fast', 0.5);
+			$("#knowledge").val(1);
+		});
+		$("#knowledge2").click(function() {
+			$("#knowledge1").fadeTo('fast', 1.0);
+			$("#knowledge2").fadeTo('fast', 1.0);
+			$("#knowledge3").fadeTo('fast', 0.5);
+			$("#knowledge4").fadeTo('fast', 0.5);
+			$("#knowledge5").fadeTo('fast', 0.5);
+			$("#knowledge").val(2);
+		});
+		$("#knowledge3").click(function() {
+			$("#knowledge1").fadeTo('fast', 1.0);
+			$("#knowledge2").fadeTo('fast', 1.0);
+			$("#knowledge3").fadeTo('fast', 1.0);
+			$("#knowledge4").fadeTo('fast', 0.5);
+			$("#knowledge5").fadeTo('fast', 0.5);
+			$("#knowledge").val(3);
+		});
+		$("#knowledge4").click(function() {
+			$("#knowledge1").fadeTo('fast', 1.0);
+			$("#knowledge2").fadeTo('fast', 1.0);
+			$("#knowledge3").fadeTo('fast', 1.0);
+			$("#knowledge4").fadeTo('fast', 1.0);
+			$("#knowledge5").fadeTo('fast', 0.5);
+			$("#knowledge").val(4);
+		});
+		$("#knowledge5").click(function() {
+			$("#knowledge1").fadeTo('fast', 1.0);
+			$("#knowledge2").fadeTo('fast', 1.0);
+			$("#knowledge3").fadeTo('fast', 1.0);
+			$("#knowledge4").fadeTo('fast', 1.0);
+			$("#knowledge5").fadeTo('fast', 1.0);
+			$("#knowledge").val(5);
+		});
+		$("#completion1").click(function() {
+			$("#completion1").fadeTo('fast', 1.0);
+			$("#completion2").fadeTo('fast', 0.5);
+			$("#completion3").fadeTo('fast', 0.5);
+			$("#completion4").fadeTo('fast', 0.5);
+			$("#completion5").fadeTo('fast', 0.5);
+			$("#completion").val(1);
+		});
+		$("#completion2").click(function() {
+			$("#completion1").fadeTo('fast', 1.0);
+			$("#completion2").fadeTo('fast', 1.0);
+			$("#completion3").fadeTo('fast', 0.5);
+			$("#completion4").fadeTo('fast', 0.5);
+			$("#completion5").fadeTo('fast', 0.5);
+			$("#completion").val(2);
+		});
+		$("#completion3").click(function() {
+			$("#completion1").fadeTo('fast', 1.0);
+			$("#completion2").fadeTo('fast', 1.0);
+			$("#completion3").fadeTo('fast', 1.0);
+			$("#completion4").fadeTo('fast', 0.5);
+			$("#completion5").fadeTo('fast', 0.5);
+			$("#completion").val(3);
+		});
+		$("#completion4").click(function() {
+			$("#completion1").fadeTo('fast', 1.0);
+			$("#completion2").fadeTo('fast', 1.0);
+			$("#completion3").fadeTo('fast', 1.0);
+			$("#completion4").fadeTo('fast', 1.0);
+			$("#completion5").fadeTo('fast', 0.5);
+			$("#completion").val(4);
+		});
+		$("#completion5").click(function() {
+			$("#completion1").fadeTo('fast', 1.0);
+			$("#completion2").fadeTo('fast', 1.0);
+			$("#completion3").fadeTo('fast', 1.0);
+			$("#completion4").fadeTo('fast', 1.0);
+			$("#completion5").fadeTo('fast', 1.0);
+			$("#completion").val(5);
+		});
+	}
+});
+
+</script>

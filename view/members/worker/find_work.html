@@ -1,0 +1,395 @@
+<style>
+#fixed_price { color:#FF0000;}
+#find_work_dialog { display:none; }
+#apply_work_dialog { display:none; }
+#error_dialog { display:none; }
+#about_employer { width: 48%; float: right;  padding: 3px; border-radius: 7px; }
+#work_information { width: 48%; float: left; }
+.work_header { width: 400px; }
+#employer_history { width: 410px; }
+.history { border: 1px solid #000000; color:#000000 !important; border-radius: 7px;padding: 3px; margin: 3px;width: 200px; }
+
+.work{ width:128px; position: relative; cursor:pointer; font-size: 24px;float:left; display:inline;color:#34495E;margin:10px; } 
+.third_party_work { position: relative; border: 1px solid #000000; cursor:pointer; font-size: 24px;float:left; display:inline;color:#34495E;margin:10px; }
+#search {
+	position: fixed;
+	top:220px;
+	z-index: 3;
+	width:800px;
+	height:75px;
+	margin-right:auto;
+	background-color:rgba(52,73,94,0.8);
+	padding:10px;
+	border-bottom-left-radius:5px;
+	border-bottom-right-radius:5px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+	text-align: center;
+	margin-top: -13px;
+	padding-top: 25px;
+}
+.btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle){
+	border-radius:5px;
+}
+.rating_stars { color: #2ECC71;}
+#search_form{
+	width:100%;
+	height:100%;
+	display:flex;
+	justify-content:space-around;
+	align-items:center;
+
+}
+#search_results{
+	position:relative;
+	overflow:auto;
+	margin-top: 60px;
+}
+#hourly_budget_container {
+	width:180px;
+	margin-left:15px;
+	text-align: center;
+	
+}
+#number_of_hours_container {
+	text-align: center;	
+	margin-left:25px;
+	width:100px;
+}
+
+.caret{
+	transform:scale(1.4);
+
+}
+ 
+.btn{
+	border-radius:5px;
+	text-align:center;
+}
+
+
+#star_rating{width:150px; font-size: 12px;color: #FFFFFF;}
+.ui-slider-horizontal .ui-slider-handle[style*="100"] {
+	margin-left: -7px;
+}
+#our_friends { margin-top:20px;}
+#category_id { display: none;}
+.front {color:#000000 !important;}
+.front div {margin: 3px;}
+.photograph {border-radius: 7px; box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);text-align: center;}
+.title { font-size:16px; }
+.pay { font-size: 18px; font-weight: bold; color: #2C3E50; }
+#search_results { height: auto; }
+#view_work { overflow:auto; margin-top:50px;}
+.dropdown-menu {color:#000000 !important;}
+#category_dropdown { width: 250px; font-size: 12px;}
+#category_button { font-size:12px;}
+	</style>
+	<div id="find_work_window"> 
+		<div id="search">
+			<form id="search_form">
+				<span id='category_dropdown' class="btn-group">
+		            <button id='category_button' data-toggle="dropdown" class="btn btn-block btn-lg btn-success" type="button">All&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="caret"></span></button>
+		            <ul role="menu" class="dropdown-menu">
+		              <li><a class='menu category_menu_item'  href="#" value='0'>All</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='1'>Website Development</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='2'>Design, Media, Content</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='3'>Mobile Development</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='4'>Data Entry</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='5'>Writing</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='6'>Marketing</a></li>
+		              <li><a class='menu category_menu_item'  href="#" value='7'>Business, Accounting, Human Resources</a></li>
+		              <li><a class='menu category_menu_item' href="#" value='8'>Language Translations</a></li>
+		              <li><a class='menu category_menu_item' href="#" value='9'>IT</a></li>
+		              <li><a class='menu category_menu_item' href="#" value='10'>Engineering</a></li>
+					  <li><a class='menu category_menu_item' href="#" value='11'>Medical Advice</a></li>
+		            </ul>
+		            <input type='hidden' id="category_id" name="category_id" value='0' /> 
+					
+		       	</span>
+				<div id='hourly_budget_container'>
+					<label type="text" id="hourly_budget" name="hourly_budget" style="border: 0; color: #fff; font-weight: bold;"></label>
+					<input type="hidden" id="min_budget" name="min_budget" value="1" />
+					<input type="hidden" id="max_budget" name="max_budget" value="80" /><div id="slider-range"></div>
+				</div>
+				
+				<div id='number_of_hours_container'>
+					<label type="text" id="num_hours" name="num_hours" style="border: 0; color: #fff; font-weight: bold;"></label>
+					<input type="hidden" id="min_budget_hours" name="min_budget_hours" value="1">
+					<input type="hidden" id="max_budget_hours" name="max_budget_hours" value="40" /><div id="slider-range2"></div>
+				</div>
+				<div id="slider-range2"></div>
+				<div id="star_rating">
+					<span class='fui-star-2 rating_stars' id="rating1"></span>
+					<span class='fui-star-2 rating_stars' id="rating2"></span>
+					<span class='fui-star-2 rating_stars' id="rating3"></span>
+					<span class='fui-star-2 rating_stars' id="rating4"></span>
+					<span class='fui-star-2 rating_stars' id="rating5"></span>
+					<input type="hidden" value="5" name="rating" id="rating" />
+				</div>
+			</div>
+		</form>
+	</div>
+	<div id="search_results" class='relative'>
+		
+	</div>
+
+</div>
+<div class='clear'> </div>
+<div id="view_work" class="relative"> </div>
+<div id="apply_work_dialog" title='Apply to Work'>
+	<center>
+		<form id="apply_work_form">
+			<input type='hidden' id='work_id' name='work_id' />
+			Budget: <span id='work_budget'>$10/hr, 20 Hrs/Week</span><br />
+			Average Bid: <span id="average_bid">$10/hr</span><br />
+			<input class="widetextbox form-control" type='text' regex="^[+-]?([0-9]*[.])?[0-9]+$" name='hourly_bid' id='hourly_bid' placeholder="Hourly Pay" /><br />
+			<input class="widetextbox form-control" type='text' regex="^[+-]?([0-9]*[.])?[0-9]+$" name='hours_per_week' id='hours_per_week' placeholder="Hours per Week" /><br />
+			<textarea name="letter" class="widetextbox form-control" rows="10" cols="50" id="letter" placeholder="Letter to Employer" ></textarea><br />
+			<input type='submit' value='Apply' class="btn btn-block btn-lg btn-success" id='apply_submit' />
+		</form>
+	</center>
+</div>
+<div id="error_dialog"> </div><br />
+<div id='our_friends'>
+
+</div>
+<script type="text/javascript">
+(function($){
+	$.event.special.destroyed = {
+		remove: function(o) {
+			if (o.handler) {
+				o.handler()
+			}
+		}
+	}
+})(jQuery)
+function getSearchResults() {
+	
+	$("#search_results").html(" ");
+	$("#view_work").hide();
+	if ($("#page").val() == undefined)
+		$("#search_form").html($("#search_form").html() + "<input type='hidden' id='page' name='page' value='0' />");
+
+	$.post ('search_work' , $('#search_form').serialize(), function(jWorkResult) {
+		var oWorkResult = $.parseJSON(jWorkResult);
+		var work_length = oWorkResult.length-1; // take away one to indicate pagination
+		for ( var i = 0; i <= work_length; i++ ) {
+			if (oWorkResult[i].worker_id == null)
+				if(oWorkResult[i].fixed_price == 0 && oWorkResult[i].link == "")
+					$("#search_results").html($("#search_results").html() + "<div class='work left' work_id='" + oWorkResult[i].id + "' href='#work/" + oWorkResult[i].id + "'><p class='work_title'>" + oWorkResult[i].title + ": $" + oWorkResult[i].budget + "/hr</p></div>");
+				else if (oWorkResult[i].link != "")
+					$("#search_results").html($("#search_results").html() + "<a class='third_party_work left' href='" + oWorkResult[i].link + "' target='_blank'>" + oWorkResult[i].title + "</a>");
+				else
+					$("#search_results").html($("#search_results").html() + "<div class='work left fixed_price' work_id='" + oWorkResult[i].id + "' href='#work/" + oWorkResult[i].id + "'><p class='work_title'>" + oWorkResult[i].title + ": $" + oWorkResult[i].budget + "</p></div>");
+		}
+		$.post ("application_count",$("#application_form").serialize(), function(jApplicationCount) {
+			oApplicationCount = $.parseJSON(jApplicationCount);
+			$("#applications_left").html(10 - oApplicationCount.amt);
+		});
+		
+		
+		if (oWorkResult.length == 0)
+			$("#search_results").html("We could not find any work that matches your needs.");
+		$("#next").button().click(function() {
+			var next_page = parseInt($("#page").val()) + 1;
+			lastWorkPage = next_page;
+			$("#page").val(next_page);
+			getSearchResults();
+		});
+
+		$("#previous").button().click(function() {
+			var prev_page = parseInt($("#page").val()) - 1;
+			lastWorkPage = prev_page;
+			$("#page").val(prev_page);
+			$("#previous").remove();
+			$("#view_work").remove();
+			getSearchResults();
+		});
+		$(".work").click(function() {
+			lastWork = $(this).attr("work_id");
+			lastWorkPage = null;
+			$("#search_results").html(" ");
+			
+			$("#view_work").remove();
+			$('#view_work').bind('destroyed', function() {
+				
+			});
+			$("#tabs").prepend("<div id='view_work'> </div>");
+			$("#view_work").css("margin-top", 70);
+			$(".search_cont").hide();
+			Utility.Form.get('view_work/' + $(this).attr("work_id"), function(jWork) {
+				oWork = $.parseJSON(jWork);
+				$("#view_work").show();
+				$("#work_id").val(oWork['id']);
+				$("#hours_per_week").val("");
+				$("#hourly_bid").val("");
+				$("#letter").val("");
+				$("#work_budget").html( "$" + oWork['budget'] + "/hr, " + oWork['budget_hours'] + " Hrs/Week");
+				if (oWork['hourly_bid_avg'] != null ) 
+					$("#average_bid").html("$" + oWork['hourly_bid_avg'] + "/hr");
+				else
+					$("#average_bid").html("None.");
+				$("#view_work").html( '<div id="work_information" class="left"><button class="btn btn-lg btn-warning" id="back_btn"><< Back to Find Work</button><br />' + oWork['title'] + '<br />' + oWork["description"]
+					+ '<br /><button id="apply_btn" class="btn btn-lg btn-success">Apply</button></div><div id="about_employer" class="relative right"><div id="employer_history" class="right relative"></div></div>');
+				$("#back_btn").button().click(function () {
+					lastWork = null;
+					getSearchResults();
+				});
+				$('#apply_btn').click(function () {
+					vex.dialog.open({
+					    unsafeMessage: $("#apply_work_dialog").html(),
+					    callback: function (value) {
+					    },
+					    buttons: []
+					});
+					$("#apply_submit").button();
+					$("#apply_work_form").submit(function() {
+						Utility.Form.post ('apply_work' , '#apply_work_form', function(jApplyResult) {
+							var oApplyResult = $.parseJSON(jApplyResult);
+							if (oApplyResult['response'] == 1) { // Success
+								$("#apply_work_dialog").remove();
+								$("#apply_btn").hide();
+								Utility.Form.get("/view/members/worker/my_work.html", function(data) {
+									$('#tabs').html(data);
+								});
+								loadedTabs[1] = true;
+							}
+							else if (oApplyResult['response'] == 2) {
+								$("#apply_work_dialog").remove();
+								$("#error_dialog").html("Existing Application.");
+								$("#error_dialog").dialog({height: 430,width: 350,modal: true});	
+							}
+							else if (oApplyResult['response'] == 0)
+								$("#apply_work_dialog").html("You have reached your application limit for this week.");
+						});
+						return false;
+					});
+
+				});
+Utility.Form.get ('get_employer_profile_by_work_id/' + oWork['id'], function(jEmployer) {
+	var oEmployer = $.parseJSON(jEmployer);
+	$("#about_employer").prepend( "<div class='left'><img class='photograph' width='100' height='100' src='" + oEmployer[0]['photograph'] + "' />"
+		+ "<br />" + Utility.Rating.getStars(oEmployer[0]['rating']) + "</div>"
+		+ "<br />" + oEmployer[0]['first_name'] + " " + oEmployer[0]['last_name'] + " - " + oEmployer[0]['location']
+		+ "<br />" + oEmployer[0]['title']
+		+ "<br />" + oEmployer[0]['description']);
+	if (typeof oEmployer[1] !== 'undefined') {
+		for (var i = 0; i < oEmployer[1].length; i++)
+			$("#employer_history").append("<div class='history'><b>" + oEmployer[1][i]['title'] + "</b><br><i>" + oEmployer[1][i]['profile_comment'] + "</i><br /><table><tr><td>Communication:</td><td>" + Utility.Rating.getStars(oEmployer[1][i]['communication']) + "</td></tr><tr><td>Availability:</td><td>" + Utility.Rating.getStars(oEmployer[1][i]['availability']) + "</td></tr></table></div>" );
+	}
+
+});
+
+});
+});		
+});
+
+
+}
+$(document).ready(function() {
+	$(".widetextbox").on( "blur", function () { 
+		var hourly_rate_regex = new RegExp($(this).attr('regex'));
+
+		if (!hourly_rate_regex.test($(this).val())) 
+			$(this).css('border-color', '#FFA500');
+		else 
+			$(this).css('border-color', '#00FF00');
+	});
+	getSearchResults();
+	$("#search_form").submit(function() { return false; });
+	$(".category_menu_item").click(function() {
+		$("#category_id").val($(this).attr('value'));
+		$('#category_button').html($(this).html() + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class='caret'></span>");
+		getSearchResults();
+	});
+
+	$( "#slider-range" ).slider({
+		range: true,
+		min: 1,
+		max: 80,
+		values: [ 1, 80 ],
+		change: function(event,ui) {
+			$("#page").val(0);
+			getSearchResults();
+		},
+		slide: function( event, ui ) {
+			$("#hourly_budget").html( "$" + ui.values[0] + "/hr - $" + ui.values[1] + "/hr");
+			$("#min_budget").val(ui.values[0]);
+			$("#max_budget").val(ui.values[1]);
+		}
+	});
+	$( "#hourly_budget" ).html(  "$" + $( "#slider-range" ).slider( "values", 0 ) + "/hr - $" + $( "#slider-range" ).slider( "values", 1 ) + "/hr" );
+
+	$( "#slider-range2" ).slider({
+		range: true,
+		min: 1,
+		max: 80,
+		values: [ 1, 80 ],
+		change: function(event,ui) {
+			$("#page").val(0);
+			getSearchResults();
+		},
+		slide: function( event, ui ) {
+			$( "#num_hours" ).html(ui.values[0] + " and " + ui.values[1] + " Hr");
+			$("#min_budget_hours").val(ui.values[0]);
+			$("#max_budget_hours").val(ui.values[1]);
+		}
+	});
+	$( "#num_hours" ).html($( "#slider-range2" ).slider( "values", 0 ) + " and " + $( "#slider-range2" ).slider( "values", 1 ) + " Hr" );
+
+	$("#rating1").click(function() {
+		$("#rating1").fadeTo('slow', 1.0);
+		$("#rating2").fadeTo('slow', 0.5);
+		$("#rating3").fadeTo('slow', 0.5);
+		$("#rating4").fadeTo('slow', 0.5);
+		$("#rating5").fadeTo('slow', 0.5);
+		$("#rating").val(1);
+		$("#search_results").html(" ");
+		$("#page").val(0);
+		getSearchResults();
+	});
+	$("#rating2").click(function() {
+		$("#rating1").fadeTo('slow', 1.0);
+		$("#rating2").fadeTo('slow', 1.0);
+		$("#rating3").fadeTo('slow', 0.5);
+		$("#rating4").fadeTo('slow', 0.5);
+		$("#rating5").fadeTo('slow', 0.5);
+		$("#rating").val(2);
+		$("#search_results").html(" ");
+		$("#page").val(0);
+		getSearchResults();
+	});
+	$("#rating3").click(function() {
+		$("#rating1").fadeTo('slow', 1.0);
+		$("#rating2").fadeTo('slow', 1.0);
+		$("#rating3").fadeTo('slow', 1.0);
+		$("#rating4").fadeTo('slow', 0.5);
+		$("#rating5").fadeTo('slow', 0.5);
+		$("#rating").val(3);
+		$("#search_results").html(" ");
+		$("#page").val(0);
+		getSearchResults();
+	});
+	$("#rating4").click(function() {
+		$("#rating1").fadeTo('slow', 1.0);
+		$("#rating2").fadeTo('slow', 1.0);
+		$("#rating3").fadeTo('slow', 1.0);
+		$("#rating4").fadeTo('slow', 1.0);
+		$("#rating5").fadeTo('slow', 0.5);
+		$("#rating").val(4);
+		$("#search_results").html(" ");
+		getSearchResults();
+	});
+	$("#rating5").click(function() {
+		$("#rating2").fadeTo('slow', 1.0);
+		$("#rating3").fadeTo('slow', 1.0);
+		$("#rating4").fadeTo('slow', 1.0);
+		$("#rating5").fadeTo('slow', 1.0);
+		$("#rating").val(5);
+		$("#search_results").html(" ");
+		$("#page").val(0);
+		getSearchResults();
+	});
+});
+
+</script>

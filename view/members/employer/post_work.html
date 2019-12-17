@@ -1,0 +1,85 @@
+<style>
+	.desc { width: 555px; margin-left: -20px;border:2px solid #ccc; border-radius: 5px;}
+	#post_work_submit { width: 400px;margin: 10px; }
+	.left { width: 45%; margin-left: 15px; float: left; }
+	#post_work_form{ overflow: none;margin: 0 auto; text-align: center; width: 600px; }
+	.bootstrap-switch-square { padding-left: 80px; }
+	.bootstrap-switch-handle-on { background-color: #2ECC71 !important; color:#FFFFFF !important; }
+	.bootstrap-switch-handle-off { background-color: #3498DB !important; color:#FFFFFF !important; }
+	.bootstrap-switch-primary~.bootstrap-switch-handle-off:before { background-color: #ECF0F1 !important; }
+	.bootstrap-switch-primary~.bootstrap-switch-handle-on:before { background-color: #BDC3C7 !important; }
+</style>
+
+<div id='post_work_form_div' class='relative'>
+	<form id="post_work_form">
+		<div class="bootstrap-switch-square" style='float: left;'>
+		  	<input type="checkbox" id='fixed_price' name="fixed_price" checked='true' data-toggle="switch" data-on-text="Fixed" data-off-text="Hourly" name="square-switch" data-size="large" />
+		</div>
+		<div class="bootstrap-switch-square" style='float: left;'>
+		  	<input type="checkbox" id='job_type' name="job_type" checked='true' data-toggle="switch" data-on-text="Office" data-off-text="Remote" name="square-switch" data-size="large" />
+		</div>
+		<div class="bootstrap-switch-square" style='float: left;'>
+		  	<input type="checkbox" id='payment_type' name="payment_type" checked='true' data-toggle="switch" data-on-text="Cash" data-off-text="Virtual" name="square-switch" data-size="large" />
+		</div>
+		<br /><br />
+		<div class='left'>
+			<input type="text" class="form-control" regex="^[a-zA-Z\s]+$" name="title" id="title" placeholder="Work Title" tabindex="2" /><br />
+			<input type="text" class="form-control" regex="^[+-]?([0-9]*[.])?[0-9]+$" id='hourly_budget' name="hourly_budget" placeholder="Hourly Rate" tabindex="3" /><br />
+		</div>
+		<div class='left'>
+			<select class="form-control" name="category" id="category" tabindex="1">
+				<option value="1">Website Development</option>
+				<option value="2">Design, Media, Content</option>
+				<option value="3">Mobile Development</option>
+				<option value="4">Data Entry</option>
+				<option value="5">Writing</option>
+				<option value="6">Marketing</option>
+				<option value="7">Business, Accounting, Human Resources</option>
+				<option value="8">Language Translations</option>
+				<option value="9">IT</option>
+				<option value="10">Engineering</option>
+				<option value="11">Medical Advice</option>
+			</select><br>
+			<input type="text" class="form-control"  regex="^[+-]?([0-9]*[.])?[0-9]+$" name="budget_hours" placeholder="Hours per week" tabindex="4" /><br />
+		</div>
+	<textarea name="description" class="desc" rows="10" cols="30" placeholder="Detailed Description" tabindex="5" ></textarea>
+	<center>
+		<input type="submit" id="post_work_submit" class='btn btn-block btn-lg btn-success' value="Post Work!" />
+	</center>
+</form>
+</div>
+<script type="text/javascript">
+
+$(document).ready(function() {
+	$('[data-toggle="switch"]').bootstrapSwitch();
+	$('.bootstrap-switch-square').click(function() { 
+		if ($(this).children('#payment_type').attr('id') == 'payment_type') {
+			$("#hourly_budget").attr("placeholder","Diamonds");
+		}
+		if ($(this).find(':input').attr('checked') == "checked")
+			$(this).find(':input').removeAttr('checked');
+		else 
+			$(this).find(':input').attr('checked', "checked");
+	});
+	$(".form-control").on("keyup", function () { 
+        var hourly_rate_regex = new RegExp($(this).attr('regex'));
+
+        if (!hourly_rate_regex.test($(this).val())) 
+            $(this).css('border-color', '#FFA500');
+        else 
+            $(this).css('border-color', '#00FF00');
+    });
+	$("#post_work_form").submit(function() {
+		Utility.Form.post ('create_work' , '#post_work_form', function() {
+			Utility.Form.get("view/members/employer/my_workers.html", function(data) {
+				$('#tabs').html(data);
+			});
+			Utility.Navigation.setPath("find_workers");
+
+		});
+		
+		return false;
+	});
+});
+
+</script>

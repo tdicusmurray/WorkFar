@@ -1,0 +1,89 @@
+<style>
+#profile_dialog {
+	display: none;
+}
+.photograph {
+	width: 128px;
+	height: 128px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    text-align: center;
+}
+.history { border: 1px solid #000000; color:#000000 !important; border-radius: 7px;padding: 5px; margin: 3px;width: 200px;}
+#description {
+	background-color:#FFFFFF;
+	border-radius: 7px;
+	padding:3px;
+	width: 600px;
+	font-size:18px;
+}
+#employer_information { width: 280px; margin-top: -35px; }
+.photograph { border-radius: 7px; }
+#name { font-size: 18px; }
+#title { font-size: 24px; }
+</style>
+<div id="profile" class='relative'>
+<button id='edit_profile' class='btn btn-lg btn-success' height='32px' width='32px'>Create Profile</button>
+</div>
+
+<div id="profile_dialog"> 
+	<form id="profile_form">
+		<table>
+			<tr>
+				<td>First Name:</td><td><input type="text" name="first_name" class='widetextbox' id="edit_first_name" /></td>
+			</tr>
+			<tr>
+				<td>Last Name:</td><td><input type="text" name="last_name" class='widetextbox' id="edit_last_name" /></td>
+			</tr>
+			<tr>
+				<td>Title:</td><td><input type="text" name="title" class='widetextbox' id="edit_title" /></td>
+			</tr>
+			<tr>
+				<td>Description:</td><td><textarea rows="10" cols="46" name="cover_letter" class='widetextbox'  id="edit_cover_letter"></textarea></td>
+			</tr>
+			<tr>
+				<td></td><td><input type="submit" class="btn btn-lg btn-success" id="profile_form_submit" value="Update" /></td>
+			</tr>
+		</table>
+	</form>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+	Utility.Form.get('my_employer_profile', function(jProfileResult) {
+		oProfileResult = $.parseJSON(jProfileResult);
+		if (oProfileResult[0]['first_name'] != "") {
+			$("#edit_first_name").val(oProfileResult[0]['first_name']);
+			$("#edit_last_name").val(oProfileResult[0]['last_name']);
+			$("#edit_title").val(oProfileResult[0]['title']);
+			$("#edit_cover_letter").val(oProfileResult[0]['description']);
+			$("#profile").html("<div id='description' class='left'>"
+								+ oProfileResult[0]['description'] + "</div><br />");
+			$("#profile").append("<div id='employer_information' class='left'><div id='title'>" + oProfileResult[0]['title'] + "</div><img class='photograph' src='" + oProfileResult[0]['photograph'] + "' /><br><div id='pay_rate' class='right'></div><div id='name' class='left'>" + oProfileResult[0]['first_name'] + " " + oProfileResult[0]['last_name'] + "<br><span class='fui-star-2'></span><span class='fui-star-2'></span><span class='fui-star-2'></span><span class='fui-star-2'></span><span class='fui-star-2'></span></div><br /><div id='hire_history'></div></div><br />");	
+			if (oProfileResult[1] != undefined) {
+				var hire_history = "";
+				for (var i = 0; i < oProfileResult[1].length; i++) {
+					hire_history += "<div class='left history'><b>" + oProfileResult[1][i]['title'] + "</b><i>" + oProfileResult[1][i]['profile_comment'] + "</i><br /><table><tr><td>Communication:</td><td>" + Utility.Rating.getStars(oProfileResult[1][i]['communication']) + "</td></tr><tr><td>Availability:</td><td>" + Utility.Rating.getStars(oProfileResult[1][i]['availability']) + "</td></tr></table></div>";
+				}
+				$("#hire_history").append(hire_history);
+			}
+			$("#hire_history").append("<button id='edit_profile' class='btn btn-lg btn-success' height='32px' width='32px'>Edit</button>");
+		}
+		$("#profile_form_submit").button();
+		$("#profile_form").submit(function() {
+			Utility.Form.post ("update_profile", "#profile_form", function () {
+				$("#profile_dialog").remove();
+				Utility.Form.get("view/members/employer/profile.html", function(data) { $('#tabs').html(data); });
+			});
+			return false;
+		});
+		$("#edit_profile").click(function() {
+			$("#profile_dialog").dialog({
+				  height: 480,
+				  width: 580,
+				  modal: true
+			});
+			$("#profile_dialog").parent().css("top","0px");
+
+		});
+	});
+});
+</script>

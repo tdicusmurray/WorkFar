@@ -1,0 +1,476 @@
+<style>
+#work_accordion { width: 48%; margin-top: 75px;}
+#worktime { width: 48% }
+#my_work_dialog { display:none; }
+#end_work_dialog { display:none; }
+#rate_work_dialog { display:none; }
+.employer_view { margin-left: 0px; }
+#refund { display: none; cursor:pointer; }
+#worktime_monitor_dialog { z-index: 15; }
+</style>
+<div id="my_works" class="relative"> 
+	<div id="worktime" class="right"><br>
+	<center><button class='btn btn-lg btn-success' id="worktime_monitor">WorkFar Monitor&trade;</button></center>
+	<div id="workfar_monitor_accordion">
+		<h3>What is the WorkFar Monitor&trade;?</h3>
+		<div>
+			WorkFar Monitor&trade; is used to track your progress on your employer's work.<br>
+			By using WorkFar Monitor&trade;, you are guaranteed payment from your employer. <br>
+			Every 10 minutes, a video recording is sent to our servers for employer verification.<br>
+			WorkFar Monitor&trade; bills the employer every hour, so you are always paid for your time.<br>
+		</div>
+		<h3>How long are my Video Invoices&trade; stored?</h3>
+		<div>
+			Logs are stored for 7 days. <br>
+			If you've made an error you can always delete the logs as a worker. <br>
+			Your employer can dispute Video Invoices&trade;, which is sent to our team for review.<br>
+		</div>
+		<h3>When will I be paid?</h3>
+		<div>
+			We release the employer's payment to you within 2 days of the credit card bill.<br>
+			You can then transfer your money to your account,<br>
+			which takes 3-5 days for a bank deposit.
+		</div>
+	</div>
+	</div>
+	<div id="work_accordion" class="left">
+		<h3 id="hired_work_title">Hired Work</h3>
+		<div id="hired_work">
+		
+		</div>
+		<h3 id="my_work_interviews_title">Interviews</h3>
+		<div id="my_work_interviews">
+		
+		</div>
+		<h3 id="my_work_work_applications_title">Work Applications</h3>
+		<div id="my_work_work_applications">
+		
+		</div>
+		<h3 id="closed_work_title">Completed Work</h3>
+		<div id="closed_work">
+		
+		</div>
+	</div>
+</div>
+<div id="end_work_dialog" title="End Work">
+	<form id="end_work_form">
+		Profile Comment: <br /><textarea id="profile_comment" name="profile_comment" cols='30' rows='3'></textarea><br />
+		<input type="hidden" name="communication" id="communication" />
+		<input type="hidden" name="availability" id="availability" />
+		<input type="hidden" name="work_id" id="end_work_id" />
+		<table>
+			<tr>
+				<td>Communication:</td>
+				<td>
+					<span class='fui-star-2 rating_stars' id="end_work_communication1"></span>
+					<span class='fui-star-2 rating_stars' id="end_work_communication2"></span>
+					<span class='fui-star-2 rating_stars' id="end_work_communication3"></span>
+					<span class='fui-star-2 rating_stars' id="end_work_communication4"></span>
+					<span class='fui-star-2 rating_stars' id="end_work_communication5"></span><br />
+				</td>
+			</tr>
+			<tr>
+				<td>Availability:</td>
+				<td>
+					<span class='fui-star-2 rating_stars' id="end_work_availability_rating1"></span>
+					<span class='fui-star-2 rating_stars' id="end_work_availability_rating2"></span>
+					<span class='fui-star-2 rating_stars' id="end_work_availability_rating3"></span>
+					<span class='fui-star-2 rating_stars' id="end_work_availability_rating4"></span>
+					<span class='fui-star-2 rating_stars' id="end_work_availability_rating5"></span>
+				</td>
+			</tr>
+		</table>
+		<input class="right btn btn-lg btn-success" id="end_work" type="submit" value="End Work" />
+	</form>
+</div>
+
+<div id="rate_work_dialog" title="Rate Employer">
+	<form id="rate_work_form">
+		Profile Comment: <br /><textarea id="rate_work_profile_comment" name="profile_comment" cols='50' rows='5'></textarea><br />
+		<input type="hidden" name="communication" id="rate_work_communication" />
+		<input type="hidden" name="availability" id="rate_work_availability" />
+		<input type="hidden" name="work_id" id="rate_work_id" />
+		<table>
+			<tr>
+				<td>Communication:</td>
+				<td>
+					<span class='fui-star-2 rating_stars' id="communication1"></span>
+					<span class='fui-star-2 rating_stars' id="communication2"></span>
+					<span class='fui-star-2 rating_stars' id="communication3"></span>
+					<span class='fui-star-2 rating_stars' id="communication4"></span>
+					<span class='fui-star-2 rating_stars' id="communication5"></span><br />
+				</td>
+			</tr>
+			<tr>
+				<td>Availability:</td>
+				<td>
+					<span class='fui-star-2 rating_stars' id="availability_rating1"></span>
+					<span class='fui-star-2 rating_stars' id="availability_rating2"></span>
+					<span class='fui-star-2 rating_stars' id="availability_rating3"></span>
+					<span class='fui-star-2 rating_stars' id="availability_rating4"></span>
+					<span class='fui-star-2 rating_stars' id="availability_rating5"></span>
+				</td>
+			</tr>
+		</table>
+		<input class="right btn btn-lg btn-success" id="rate_work" type="submit" value="Rate Employer" />
+	</form>
+</div>
+<div id='worktime_monitor_dialog' title='WorkFar Monitor&trade;'>
+
+</div>
+<link href="view/members/worker/workfar_monitor/player/video-js.css" rel="stylesheet">
+<script src="view/members/worker/workfar_monitor/player/video.js"></script>
+<script>
+  videojs.options.flash.swf = "view/members/worker/workfar_monitor/player/video-js.swf";
+</script>
+<script type="text/javascript">
+$(document).ready(function() {
+	$("#workfar_monitor_accordion").accordion({
+		heightStyle: "content",
+		autoheight: false,
+		collapsible: true,
+		alwaysOpen: false,
+		active: false
+	});
+
+	$("#worktime_monitor").button().click(function() {
+		$("#worktime_monitor_dialog").dialog({
+				height: 250,
+				width: 350,
+				modal: false
+			});
+		Utility.Form.get("view/members/worker/workfar_monitor/workfar_monitor.html",function(response) {
+			$("#worktime_monitor_dialog").html(response);
+		});
+	});
+	
+	Utility.Form.get('my_applications', function(jApplications) {
+		if (jApplications == "") return;
+		var oApplications = $.parseJSON(jApplications);
+		if (typeof oApplications == undefined) return;
+		$("#apply_message").hide();
+		var applications_length = oApplications.length;
+		for ( var i = 0; i < applications_length; i++ ) {
+			if (oApplications[i]['interview_time'] == null) {
+				$("#my_work_work_applications").html( $("#work_applications").html() + oApplications[i]['title'] + "<br />");
+			} else {
+				$("#my_work_interviews").html($("#my_work_interviews").html() +  "<br><b>" + oApplications[i]['title'] + "</b>");
+			}
+		}
+	});
+	Utility.Form.get('my_work', function(jWork) {
+		oWork = $.parseJSON(jWork);
+		var work_length = oWork.length;
+
+		for ( var i = 0; i < work_length; i++ ) {
+				if (oWork[i]['status_id'] == 1) { // open
+					
+				} else if (oWork[i]['status_id'] == 2) { // hired
+					$("#hired_work").html( $("#hired_work").html() + "<div id='work" + oWork[i]['id'] + "' work_id=" + oWork[i]['id'] +"><b>" + oWork[i]['title'] + "</b> - <span style='color:#2e6e9e;font-weight:bold;'>$" + oWork[i]['hourly_rate'] + "/hr</span><br /><a href='#my_work' class='work_history'>Work History</a> | <a href='#my_work' class='end_work'>End Work</a></div>");
+					$("#hired_work").show();
+					$("#hired_work_title").show();
+				}
+				else if (oWork[i]['status_id'] == 3) { // closed
+					$("#closed_work").html( $("#closed_work").html() + "<div id='work" + oWork[i]['id'] + "' work_id=" + oWork[i]['id'] + "><b>" + oWork[i]['title'] + "</b></div>" );
+					if (oWork[i]['no_feedback'] == true) 
+						$("#work" + oWork[i]['id']).html( $("#work" + oWork[i]['id']).html() + "<a href='#my_work' class='rate_employer'>Rate Employer</a></div>");
+					$("#closed_work").show();
+					$("#closed_work_title").show();
+				}
+			}
+			$("#work_accordion").accordion({
+				heightStyle: "content",
+				autoheight: false,
+				collapsible: true,
+				alwaysOpen: false,
+				active: false
+			});
+
+			$("#rate_work").button();
+			$("#rate_work_form").submit(function() {
+				Utility.Form.post ("worker_rate_work", "#rate_work_form",
+				function (jEndResult) {
+					var oEndResult = $.parseJSON(jEndResult);
+
+					if (oEndResult['response'] == 1) {
+						Utility.Form.get("/work/view/members/worker/my_work.html", function(data) {
+							$('#tabs').html(data);
+						});
+						Utility.Form.get("/work/view/members/worker/profile.html", function(data) {
+							$('#tabs').html(data);
+						});
+					}
+				});
+				return false;
+			});
+			$("#end_work").button();
+			$("#end_work_form").submit(function() {
+				Utility.Form.post ("worker_end_work", "#end_work_form", function (jEndResult) {
+					var oEndResult = $.parseJSON(jEndResult);
+
+					if (oEndResult['response'] == 1) {
+						Utility.Form.get("view/members/worker/my_work.html", function(data) {
+							$('#tabs').html(data);
+						});
+						Utility.Form.get("view/members/worker/profile.html", function(data) {
+							$('#tabs').html(data);
+						});
+					}
+				});
+				return false;
+			});
+			$(".rate_employer").click(function() {
+
+			vex.dialog.open({
+	    unsafeMessage: $("#rate_work_dialog").html(),
+	    callback: function (value) {
+	    },
+	    buttons: []
+	});
+			$("#rate_work_id").val($(this).parent().attr("work_id"));
+			$("#communication1").fadeTo('fast', 0.5);
+			$("#communication2").fadeTo('fast', 0.5);
+			$("#communication3").fadeTo('fast', 0.5);
+			$("#communication4").fadeTo('fast', 0.5);
+			$("#communication5").fadeTo('fast', 0.5);
+			$("#rate_work_communication").val(0);
+			$("#rate_work_availability").val(0);
+			$("#profile_comment").val("");
+			$("#availability_rating1").fadeTo('fast', 0.5);
+			$("#availability_rating2").fadeTo('fast', 0.5);
+			$("#availability_rating3").fadeTo('fast', 0.5);
+			$("#availability_rating4").fadeTo('fast', 0.5);
+			$("#availability_rating5").fadeTo('fast', 0.5);
+			$("#communication1").click(function() {
+				$("#communication1").fadeTo('fast', 1.0);
+				$("#communication2").fadeTo('fast', 0.5);
+				$("#communication3").fadeTo('fast', 0.5);
+				$("#communication4").fadeTo('fast', 0.5);
+				$("#communication5").fadeTo('fast', 0.5);
+				$("#communication").val(1);
+			});
+			$("#communication2").click(function() {
+				$("#communication1").fadeTo('fast', 1.0);
+				$("#communication2").fadeTo('fast', 1.0);
+				$("#communication3").fadeTo('fast', 0.5);
+				$("#communication4").fadeTo('fast', 0.5);
+				$("#communication5").fadeTo('fast', 0.5);
+				$("#communication").val(2);
+			});
+			$("#communication3").click(function() {
+				$("#communication1").fadeTo('fast', 1.0);
+				$("#communication2").fadeTo('fast', 1.0);
+				$("#communication3").fadeTo('fast', 1.0);
+				$("#communication4").fadeTo('fast', 0.5);
+				$("#communication5").fadeTo('fast', 0.5);
+				$("#communication").val(3);
+			});
+			$("#communication4").click(function() {
+				$("#communication1").fadeTo('fast', 1.0);
+				$("#communication2").fadeTo('fast', 1.0);
+				$("#communication3").fadeTo('fast', 1.0);
+				$("#communication4").fadeTo('fast', 1.0);
+				$("#communication5").fadeTo('fast', 0.5);
+				$("#communication").val(4);
+			});
+			$("#communication5").click(function() {
+				$("#communication1").fadeTo('fast', 1.0);
+				$("#communication2").fadeTo('fast', 1.0);
+				$("#communication3").fadeTo('fast', 1.0);
+				$("#communication4").fadeTo('fast', 1.0);
+				$("#communication5").fadeTo('fast', 1.0);
+				$("#communication").val(5);
+			});
+			$("#availability_rating1").click(function() {
+				$("#availability_rating1").fadeTo('fast', 1.0);
+				$("#availability_rating2").fadeTo('fast', 0.5);
+				$("#availability_rating3").fadeTo('fast', 0.5);
+				$("#availability_rating4").fadeTo('fast', 0.5);
+				$("#availability_rating5").fadeTo('fast', 0.5);
+				$("#availability_rating").val(1);
+			});
+			$("#availability_rating2").click(function() {
+				$("#availability_rating1").fadeTo('fast', 1.0);
+				$("#availability_rating2").fadeTo('fast', 1.0);
+				$("#availability_rating3").fadeTo('fast', 0.5);
+				$("#availability_rating4").fadeTo('fast', 0.5);
+				$("#availability_rating5").fadeTo('fast', 0.5);
+				$("#availability").val(2);
+			});
+			$("#availability_rating3").click(function() {
+				$("#availability_rating1").fadeTo('fast', 1.0);
+				$("#availability_rating2").fadeTo('fast', 1.0);
+				$("#availability_rating3").fadeTo('fast', 1.0);
+				$("#availability_rating4").fadeTo('fast', 0.5);
+				$("#availability_rating5").fadeTo('fast', 0.5);
+				$("#availability").val(3);
+			});
+			$("#availability_rating4").click(function() {
+				$("#availability_rating1").fadeTo('fast', 1.0);
+				$("#availability_rating2").fadeTo('fast', 1.0);
+				$("#availability_rating3").fadeTo('fast', 1.0);
+				$("#availability_rating4").fadeTo('fast', 1.0);
+				$("#availability_rating5").fadeTo('fast', 0.5);
+				$("#availability").val(4);
+			});
+			$("#availability_rating5").click(function() {
+				$("#availability_rating1").fadeTo('fast', 1.0);
+				$("#availability_rating2").fadeTo('fast', 1.0);
+				$("#availability_rating3").fadeTo('fast', 1.0);
+				$("#availability_rating4").fadeTo('fast', 1.0);
+				$("#availability_rating5").fadeTo('fast', 1.0);
+				$("#availability").val(5);
+			});
+		});
+		$(".end_work").click(function() {
+			vex.dialog.open({
+			    unsafeMessage: $("#end_work_dialog").html(),
+			    callback: function (value) {
+			    },
+			    buttons: []
+			});
+
+			$("#end_work_id").val($(this).parent().attr("work_id"));
+			$("#end_work_communication1").fadeTo('fast', 0.5);
+			$("#end_work_communication2").fadeTo('fast', 0.5);
+			$("#end_work_communication3").fadeTo('fast', 0.5);
+			$("#end_work_communication4").fadeTo('fast', 0.5);
+			$("#end_work_communication5").fadeTo('fast', 0.5);
+			
+			$("#end_work_availability_rating1").fadeTo('fast', 0.5);
+			$("#end_work_availability_rating2").fadeTo('fast', 0.5);
+			$("#end_work_availability_rating3").fadeTo('fast', 0.5);
+			$("#end_work_availability_rating4").fadeTo('fast', 0.5);
+			$("#end_work_availability_rating5").fadeTo('fast', 0.5);
+
+			$("#end_work_communication1").click(function() {
+				$("#end_work_communication1").fadeTo('fast', 1.0);
+				$("#end_work_communication2").fadeTo('fast', 0.5);
+				$("#end_work_communication3").fadeTo('fast', 0.5);
+				$("#end_work_communication4").fadeTo('fast', 0.5);
+				$("#end_work_communication5").fadeTo('fast', 0.5);
+				$("#communication").val(1);
+			});
+			$("#end_work_communication2").click(function() {
+				$("#end_work_communication1").fadeTo('fast', 1.0);
+				$("#end_work_communication2").fadeTo('fast', 1.0);
+				$("#end_work_communication3").fadeTo('fast', 0.5);
+				$("#end_work_communication4").fadeTo('fast', 0.5);
+				$("#end_work_communication5").fadeTo('fast', 0.5);
+				$("#communication").val(2);
+			});
+			$("#end_work_communication3").click(function() {
+				$("#end_work_communication1").fadeTo('fast', 1.0);
+				$("#end_work_communication2").fadeTo('fast', 1.0);
+				$("#end_work_communication3").fadeTo('fast', 1.0);
+				$("#end_work_communication4").fadeTo('fast', 0.5);
+				$("#end_work_communication5").fadeTo('fast', 0.5);
+				$("#communication").val(3);
+			});
+			$("#end_work_communication4").click(function() {
+				$("#end_work_communication1").fadeTo('fast', 1.0);
+				$("#end_work_communication2").fadeTo('fast', 1.0);
+				$("#end_work_communication3").fadeTo('fast', 1.0);
+				$("#end_work_communication4").fadeTo('fast', 1.0);
+				$("#end_work_communication5").fadeTo('fast', 0.5);
+				$("#communication").val(4);
+			});
+			$("#end_work_communication5").click(function() {
+				$("#end_work_communication1").fadeTo('fast', 1.0);
+				$("#end_work_communication2").fadeTo('fast', 1.0);
+				$("#end_work_communication3").fadeTo('fast', 1.0);
+				$("#end_work_communication4").fadeTo('fast', 1.0);
+				$("#end_work_communication5").fadeTo('fast', 1.0);
+				$("#communication").val(5);
+			});
+			$("#end_work_availability_rating1").click(function() {
+				$("#end_work_availability_rating1").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating2").fadeTo('fast', 0.5);
+				$("#end_work_availability_rating3").fadeTo('fast', 0.5);
+				$("#end_work_availability_rating4").fadeTo('fast', 0.5);
+				$("#end_work_availability_rating5").fadeTo('fast', 0.5);
+				$("#availability_rating").val(1);
+			});
+			$("#end_work_availability_rating2").click(function() {
+				$("#end_work_availability_rating1").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating2").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating3").fadeTo('fast', 0.5);
+				$("#end_work_availability_rating4").fadeTo('fast', 0.5);
+				$("#end_work_availability_rating5").fadeTo('fast', 0.5);
+				$("#availability").val(2);
+			});
+			$("#end_work_availability_rating3").click(function() {
+				$("#end_work_availability_rating1").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating2").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating3").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating4").fadeTo('fast', 0.5);
+				$("#end_work_availability_rating5").fadeTo('fast', 0.5);
+				$("#availability").val(3);
+			});
+			$("#end_work_availability_rating4").click(function() {
+				$("#end_work_availability_rating1").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating2").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating3").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating4").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating5").fadeTo('fast', 0.5);
+				$("#availability").val(4);
+			});
+			$("#end_work_availability_rating5").click(function() {
+				$("#end_work_availability_rating1").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating2").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating3").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating4").fadeTo('fast', 1.0);
+				$("#end_work_availability_rating5").fadeTo('fast', 1.0);
+				$("#availability").val(5);
+			});
+			$("#communication").val(0);
+			$("#availability").val(0);
+			$("#profile_comment").val("");
+			$("#work_id").val($(this).parent().attr("work_id"));
+		});
+		$(".work_history").click(function() {
+			$("#work_accordion").css("width", "640px");
+			$("#worktime").hide();
+			
+			$("#hired_work").html("<a href='#my_work' id='back'>Back</a><br />");
+			Utility.Form.get("work_history/" + $(this).parent().attr("work_id"), function(response) {
+				$("#hired_work").html("<span class='fui-trash' id='refund'></span><form id='selected_charge'><input type='hidden' name='charge_href' id='charge_href' /><input type='hidden' name='work_id' id='work_id' /></form><div id='selected'> </div>" + response);
+				$("#refund").click(function() {
+					Utility.Form.post("refund", "#selected_charge", function(response) {
+					});
+				});
+				$(".worker_view").click(function() {
+					$("#refund").show();
+					$("#selected").html($(this).html());
+					$("#charge_href").val($(this).find("video").attr("charge_href"));
+					$("#work_id").val($(this).find("video").attr("work_id"));
+					$("#selected").find("video").animate({width:"900px",height:"300px"});
+					$("html, body").animate({ scrollTop: 0 }, "slow");
+					var player = videojs(document.getElementById($("#selected").find("video").attr("id")), { /* Options */ }, function() {
+					  $("#selected").find("video").parent().css({width:"900px",height:"500px"});
+					  this.play();
+					  this.on('ended', function() {
+					    console.log('awww...over so soon?');
+					  });
+					});
+				});
+			});
+			$("#back").button().click(function() {
+			    Utility.Form.get("view/members/worker/my_work.html" , function(data) {
+		            $("#tabs").html(data);
+		        });
+			});
+			$(".view_image").click(function() {
+				$("#dialog").html($(this).parent().html());
+				$("#dialog").html($("#dialog").html() + $(this).parent().attr("keystrokes"));
+				vex.dialog.open({
+				    unsafeMessage: $("#dialog").html(),
+				    callback: function (value) {
+				    },
+				    buttons: []
+				});
+			});
+		});
+	});
+});
+</script>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>WorkFar Monitor</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <style>
+        audio {
+            vertical-align: bottom;
+            width: 10em;
+        }
+        video {
+            max-width: 100%;
+            vertical-align: top;
+        }
+        label {
+            display: inline-block;
+            width: 8em;
+        }
+        #install_app { display: none; }
+    </style>
+    
+    <script>
+        document.createElement('article');
+        document.createElement('footer');
+        
+        function loadScript(src) {
+            var script = document.createElement('script');
+            script.async = true;
+            script.src = src;
+            document.documentElement.appendChild(script);
+        }
+        loadScript('view/members/worker/workfar_monitor/RecordRTC.min.js');
+        loadScript('view/members/worker/workfar_monitor/gif-recorder.js');
+    </script>
+    <script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+</head>
+
+<body>
+    <article>
+        <section class="experiment">
+            <center><button id="install_app" class='btn btn-lg btn-success'>Install Once</button></center>
+            <div class="inner">
+                <div>
+                    <button class='left btn btn-lg btn-success' id="record-video">Record</button>
+                    <select id="choose_work" name="work_id"> 
+                    </select>
+                    <button class='right btn btn-lg btn-success' id="stop-recording-video" disabled>Stop</button>
+                    <br>
+                    <video id="video" autoplay loop controls muted></video>
+                    <span id="video-url-preview"></span>
+                </div>
+            </div>
+        </section>
+        <script>
+        var video_upload_interval = null;
+        $(document).ready(function() {
+            $('#install_app').click(function () {
+                window.open('https://chrome.google.com/webstore/detail/ajhifddimkapgcifgcodmmfdlknahffk');
+            });
+
+            function successCallback() {
+                location.reload();
+            }
+
+            function failureCallback(error) {
+                alert(error);
+            }
+            Utility.Form.get("my_work", function(work) {
+                var new_work = $.parseJSON(work);
+                for ( var i = 0; i < new_work.length; i++ )
+                    $("#choose_work").append("<option value='" + new_work[i]['id'] + "'>" + new_work[i]['title'] + "</option>");
+            });
+
+            (function() {
+                var params = {},
+                    r = /([^&=]+)=?([^&]*)/g;
+
+                function d(s) {
+                    return decodeURIComponent(s.replace(/\+/g, ' '));
+                }
+
+                var match, search = window.location.search;
+                while (match = r.exec(search.substring(1)))
+                    params[d(match[1])] = d(match[2]);
+
+                window.params = params;
+            })();
+
+        function getByID(id) {
+            return document.getElementById(id);
+        }
+
+        var recordAudio = getByID('record-audio'),
+            recordVideo = getByID('record-video'),
+            recordGIF = getByID('record-gif'),
+            stopRecordingAudio = getByID('stop-recording-audio'),
+            pauseResumeAudio = getByID('pause-resume-audio'),
+            pauseResumeVideo = getByID('pause-resume-video'),
+            pauseResumeGif = getByID('pause-resume-gif'),
+            stopRecordingVideo = getByID('stop-recording-video'),
+            stopRecordingGIF = getByID('stop-recording-gif');
+        var video = getByID('video');
+        var audio = getByID('audio');
+
+        var videoConstraints = {
+            audio: false,
+            video: {
+                mandatory: {
+                    chromeMediaSource: 'screen',
+                    minFrameRate: 1,
+                    maxFrameRate: 1
+                          },
+                optional: []
+            }
+        };
+
+        var audioConstraints = {
+            audio: true,
+            video: false
+        };
+
+        var screen_constraints;
+
+        function isCaptureScreen(callback) {
+            getScreenId(function (error, sourceId, _screen_constraints) {
+                if(error === 'not-installed') {
+                    $("#install_app").show();
+                }
+                
+                if(error === 'permission-denied') {
+                    alert('Screen capturing permission is denied.');
+                }
+                
+                if(error === 'installed-disabled') {
+                    alert('Please enable chrome screen capturing extension.');
+                }
+                
+                if(_screen_constraints) {
+                    screen_constraints = _screen_constraints.video;
+                    videoConstraints = _screen_constraints;
+                }
+                else {
+                    videoConstraints = screen_constraints;
+                }
+
+                callback();
+            });
+        }
+
+        function recordVideo() {
+            
+        }
+        $("#stop-recording-video").button().click(function() {
+            $("#stop-recording-video").addClass("ui-button-disabled");
+            $("#stop-recording-video").addClass("ui-state-disabled");
+            $("#record-video").removeClass("ui-button-disabled");
+            $("#record-video").removeClass("ui-state-disabled");
+            $("#stop-recording-video").attr("disabled","true");
+            $("#record-video").removeAttr("disabled");
+            clearInterval(video_upload_interval);
+            if (recorder)
+                recorder.stopRecording(function(url) {
+                var fd = new FormData();
+                fd.append('video-blob', recorder.getBlob(),"blob.webm");
+                fd.append('work_id', $("#choose_work").val());
+                $.ajax({
+                    type: 'POST',
+                    url: 'create_video',
+                    data: fd,
+                    processData: false,
+                    contentType: false
+                }).done(function(data) {
+                    console.log(data);
+                });
+                $('#video-url-preview').html('<a href="' + url + '" target="_blank">Recorded Video URL</a>');
+                });
+        });
+        $("#record-video").button().click(function() {
+            $("#stop-recording-video").removeClass("ui-button-disabled");
+            $("#stop-recording-video").removeClass("ui-state-disabled");
+            $("#record-video").addClass("ui-button-disabled");
+            $("#record-video").addClass("ui-state-disabled");
+            $("#stop-recording-video").attr("disabled","true");
+            $("#stop-recording-video").removeAttr("disabled");
+
+            isCaptureScreen(function() {
+            navigator.getUserMedia = navigator.getUserMedia ||
+                               navigator.webkitGetUserMedia ||
+                               navigator.mozGetUserMedia    ||
+                               null;
+            navigator.getUserMedia(videoConstraints, function(stream) {
+                video.onloadedmetadata = function() {
+                    var options = {
+                        type: 'video',
+                        video: video, 
+                        canvas: {
+                            width: 1366,
+                            height: 768
+                        },
+                        recorderType: null // to let RecordRTC choose relevant types itself
+                    };
+                    recorder = window.RecordRTC(stream, options);
+                    recorder.startRecording();
+                    
+                    video.onloadedmetadata = false;
+            video_upload_interval = setInterval(function() {
+            $("#record-video").removeClass("ui-button-disabled");
+            $("#record-video").removeClass("ui-state-disabled");
+            $("#stop-recording-video").addClass("ui-button-disabled");
+            $("#stop-recording-video").addClass("ui-state-disabled");
+            $("#record-video").removeAttr("disabled");
+            if (recorder)
+                recorder.stopRecording(function(url) {
+                var fd = new FormData();
+                fd.append('video-blob', recorder.getBlob(),"blob.webm");
+                fd.append('work_id', $("#choose_work").val());
+                $.ajax({
+                    type: 'POST',
+                    url: 'create_video',
+                    data: fd,
+                    processData: false,
+                    contentType: false
+                }).done(function(data) {
+                    console.log(data);
+                });
+                $('#video-url-preview').html('<a href="' + url + '" target="_blank">Recorded Video URL</a>');
+                });
+        },600000);
+                }
+                video.src = URL.createObjectURL(stream);
+            }, function() { });
+                window.isAudio = false;
+
+                recordVideo.disabled = true;
+                stopRecordingVideo.disabled = false;
+            });
+        });
+    });
+        </script>
+</body>
+
+</html>

@@ -1,0 +1,248 @@
+<style>
+#payment_form { width: 80%; }
+#withdraw { display: none; }
+#membership { width:50%; }
+#benefits { width: 45%; }
+.StripeElement {
+  background-color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 3px 0 #e6ebf1;
+  -webkit-transition: box-shadow 150ms ease;
+  transition: box-shadow 150ms ease;
+}
+
+.StripeElement--focus {
+  box-shadow: 0 1px 3px 0 #cfd7df;
+}
+
+.StripeElement--invalid {
+  border-color: #fa755a;
+}
+
+.StripeElement--webkit-autofill {
+  background-color: #fefde5 !important;
+}
+</style>
+<div id='payment' class='relative'>
+<div id="membership_response"></div>
+    <div id='membership'>
+      <b>$1.00/Month Membership.</b>
+    <form id="payment_form">
+      <div class="form-row">
+      <div class="form-row">
+        <label for="card-element">
+        </label>
+        <div id="card-element">
+          <!-- a Stripe Element will be inserted here. -->
+        </div>
+
+        <!-- Used to display form errors -->
+        <div id="card-errors" role="alert"></div>
+      </div>
+
+      </div><br>
+      <button id="create_payment_account" class='btn btn-block btn-lg btn-success'>Start Membership</button>
+    </form>
+    <form id="token_form"> </form>
+    </div>
+    <ul id='benefits'>
+      <li>Every day you login you get 5 Diamonds, 10 Gold, and 50 Silver.</li>
+      <li>Start any remote job found on WorkFar.com.</li>
+      <li>Private Newsletter with Job Offers.</li>
+      <li>WorkFar Monitor available.</li>
+      <li>Video Calling to employers available.</li>
+    </ul>
+<div id="withdraw">
+  <div id="balance">
+    <b id='balance_amount'>Balance:</h6>
+      <button href="#withdraw" id="withdraw_money" class='btn btn-block btn-lg btn-success'>Send to My Bank</button>
+  </div>
+
+  <div id="payments">
+    <h3>Payments</h3>
+  </div>
+  <div id="transfers">
+    <h3>Bank Transfers</h3>
+  </div>
+  <h5>Direct Deposit to your bank account or debit card.</h5><br>
+  
+</div>
+<b class='right'>Direct Deposit to Bank Account.</b><br>
+<a id='create_express_account' class='right' href='' target="_blank"><img src='/view/members/worker/members/blue-on-light.png' /></a>
+<div id='disputes' style='display:none;'>
+  <h6>Recent Disputes</h6>
+  <table id='disputes_table'>
+    <tr>
+      <td>Last Sender</td>
+      <td>Message</td>
+      <td>Sent Time</td>
+      <td> </td>
+    </tr>
+  </table>
+</div>
+</div>
+<script type="text/javascript">
+  window.dispute_id;
+  window.worktime_monitor_id;
+  $(document).ready(function () {
+    Utility.Form.get("/csrf", function (response) {
+      $("#create_express_account").attr("href", "https://connect.stripe.com/express/oauth/authorize?redirect_uri=https://workfar.com/bank_confirm&response_type=code&client_id=ca_BgYL4ZS7RT7YfS3XaYwNPksYolIghe0J&scope=read_write&state=" + response);
+    });
+    Utility.Form.get("view_disputes", function (jDisputes) {
+      var disputes = $.parseJSON(jDisputes);
+      if (jDisputes != "false") {
+        $("#disputes").show();
+        $("#disputes_table").append("<tr><td>" + disputes['first_name'] + " " + disputes['last_name'] + "</td><td>" + disputes['message'] + "</td><td>" + disputes['datetime'] + "</td><td><button dispute_id='" + disputes['id'] + "' class='view_dispute btn btn-success'>View</button></td></tr>");
+      }
+      $(".view_dispute").click(function () {
+        window.dispute_id = $(this).attr("dispute_id");
+        Utility.Form.get("view_dispute/" + $(this).attr("dispute_id"), function (jDispute) {
+          var dispute = $.parseJSON(jDispute);
+          $("#disputes_dialog").dialog({
+            height: 450,
+            width: 550,
+            modal: true
+          });
+
+          $("#disputes_dialog").parent().css("top", "0px");
+          $("#disputes_dialog").html("<div id='disputes_video_player'></div><form id='dispute_respond'> <input type='hidden' name='dispute_payment_id' id='dispute_payment_id' value='' /> <input type='text' name='message' id='message' /> <input type='submit' value='Send' /> </form>");
+          for (var i = 0; i < dispute.length; i++) {
+            window.worktime_monitor_id = dispute[i]['worktime_monitor_id'];
+            Utility.Form.get("dispute_video/" + window.worktime_monitor_id, function (video_html) {
+              $("#disputes_video_player").html(video_html);
+              var player = videojs(document.getElementById($("#dispute_video").find("video").attr("id")), { /* Options */ }, function () {
+                $("#dispute_video").find("video").parent().css({ width: "500px", height: "300px" });
+                this.play();
+                this.on('ended', function () {
+                  console.log('awww...over so soon?');
+                });
+              });
+              $("#disputes_dialog").scrollTop($("#disputes_dialog").height());
+            });
+            $("#disputes_dialog").append("<div class='dispute_message'>" + dispute[i]['first_name'] + " " + dispute[i]['last_name'] + "<span style='font-size:10px;color:#00FF00;'>" + dispute[i]['datetime'] + "</span><br>" + dispute[i]['message'] + "</div>");
+
+          }
+
+          $("#dispute_respond").submit(function () {
+            $("#dispute_payment_id").val(window.dispute_id);
+            Utility.Form.post("send_dispute_message", "#dispute_respond", function (jDispute) {
+              var dispute = $.parseJSON(jDispute);
+              $('#message').val("");
+              $("#disputes_dialog").append(dispute['first_name'] + " " + dispute['last_name'] + "<span style='font-size:10px;color:#00FF00;'>" + dispute['datetime'] + "</span><br>" + dispute['message'] + "<br>");
+              $("#disputes_dialog").scrollTop($("#disputes_dialog").height());
+            });
+            return false;
+          });
+
+        });
+      });
+    });
+    $("#withdraw_money").click(function () {
+      Utility.Form.get("get_balance", function (jBalance) {
+        var balance = $.parseJSON(jBalance);
+        if (balance != 0) {
+          Utility.Form.post("create_transfer", "no_form", function (jResponse) {
+            $("#balance_amount").html("Balance: $0.00");
+            $("#withdraw_money").prepend("Successfully Sent to your Bank Account.");
+          });
+        }
+      });
+    });
+    Utility.Form.get("get_balance", function (jBalance) {
+      var balance = $.parseJSON(jBalance);
+      if (balance['balance'] != null && balance['balance'] != 0) {
+        $("#balance").show();
+        $("#balance_amount").append(" $" + (balance['balance'] / 100));
+      }
+      Utility.Form.get("bank_ready", function (jResponse) {
+        var response = $.parseJSON(jResponse);
+        if (response[0] == false)
+          $("#create_express_account").show();
+        else {
+          $("#payments").show();
+          $("#transfers").show();
+          for (var i = 0; i < response[1].length; i++) {
+            $("#payments").append("$" + response[1][i]['amount'] / 100 + " " + response[1][i]['title'] + " " + " " + response[1][i]['first_name'] + " " + response[1][i]['last_name'] + "<br>");
+          }
+          for (var i = 0; i < response[2].length; i++) {
+            $("#transfers").append("$" + response[2][i]['amount'] / 100 + " " + response[2][i]['created'] + "<br>");
+          }
+        }
+        if (response[3] == false) {
+          $("#membership").show();
+        } else {
+          $("#membership").hide();
+          $("#membership_response").show();
+          $("#membership_response").html ("<center>Congratulations, and thank you.<br><img src='/view/members/worker/members/memberbadge.png' /></center>");
+        }
+      });
+    });
+    $("#populate_bank").button();
+    $("#ba-submit").button();
+    function stripeResponseHandler(response) {
+       var $form = $('#payment_form');
+
+       if (response.error) {
+            $form.find('.payment_errors').text(response.error.message);
+       } else {
+            var token = response.id;
+            $("#token_form").append($('<input type="hidden" name="card_href" />').val(token));
+           
+            $("#payment_page").hide('clip');
+            $.post("start_membership", $("#token_form").serialize(), function() {
+                $("#response").html("Perfect! Every day you login you receive rewards. Here's 5 Diamonds, 10 Gold, and 50 Silver!");
+            });
+       }
+    }
+        var stripe = Stripe('pk_live_b8ySstxkrT6eNWAQRqwJsPO4');
+        var elements = stripe.elements();
+          var style = {
+            base: {
+              color: '#32325d',
+              lineHeight: '24px',
+              fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+              fontSmoothing: 'antialiased',
+              fontSize: '16px',
+              '::placeholder': {
+                color: '#aab7c4'
+              }
+            },
+            invalid: {
+              color: '#fa755a',
+              iconColor: '#fa755a'
+            }
+          };
+          var card = elements.create('card', {style: style});
+          card.mount('#card-element');
+
+          card.addEventListener('change', function(event) {
+            var displayError = document.getElementById('card-errors');
+            if (event.error) {
+              displayError.textContent = event.error.message;
+            } else {
+              displayError.textContent = '';
+            }
+          });
+
+          var form = document.getElementById('payment_form');
+          form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            stripe.createToken(card).then(function(result) {
+              if (result.error) {
+                var errorElement = document.getElementById('card-errors');
+                errorElement.textContent = result.error.message;
+              } else {
+                  $("#token_form").append($('<input type="hidden" name="card_href" />').val(result.token.id));
+                 
+                  $("#payment_page").hide('clip');
+                  Utility.Form.post("create_card_profile", "#token_form", function() {
+                    $("#payment_form").html("Perfect! You can start hiring workers now.");
+                  });
+              }
+            });
+          });    
+
+  });
+</script>

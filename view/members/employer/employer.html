@@ -1,0 +1,253 @@
+ <style>
+#progress {
+    width: 640px !important;
+    box-shadow: 0 4px 8px 0 rgba(255, 255, 255, 0.2), 0 6px 20px 0 rgba(255, 255, 255, 0.19);
+    text-align: center;
+    height: 30px;
+}
+.percent {
+    top:2px !important;
+}
+.progress-label {  
+    left:45% !important;
+    top:2px !important;
+    color:#FFFFFF;
+    text-shadow:1px 1px 1px #111;
+}
+
+.navbar {
+	margin-top:-18px;
+    margin-bottom: 0px !important;
+    border-top-left-radius: 0 !important; 
+    border-top-right-radius: 0 !important;
+    color: #FFFFFF !important;
+    position: fixed !important;
+    top: 150px !important;
+    text-align:center;
+    z-index:6;
+    height:80px;
+    width: 820px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    background-color:#95A5A6 !important;
+    z-index:999999;
+}
+.navbar-nav>li>a {
+}
+#message_btn { 
+	margin-left: 100px !important;
+	cursor: pointer;
+}
+#logout {
+	cursor: pointer;
+}
+#tabs {
+	width:100%;
+	margin-top:210px;
+	display:block;
+	overflow:auto;
+}
+a { color: #FFFFFF !important;}
+a:hover{ color: #000000 !important;}
+@media only screen and (min-width: 0px) and (max-width: 360px) {
+	.navbar {}
+
+}
+.icon { font-size: 64px; }
+.icon:hover { box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); }
+.fui-search { color:#C0392B;}
+.nav {margin-top: 10px;}
+ </style>
+
+ <div class="row">
+        <div class="col-xs-12">
+          <nav class="navbar navbar-inverse navbar-embossed  palette-peter-river" role="navigation">
+            <div class="navbar-header">
+            <div class="collapse navbar-collapse" id="navbar-collapse-01">
+              <ul class="nav navbar-nav navbar-left" style='margin-top: 10px;'>
+              		<li><a href='#find_work' id="find_work"><span class="icon fui-search"></span></a></li>
+              		<li><a id="payment_btn" href="#payment"><span class="icon fui-credit-card"></span></a></li>
+	                <li><a id="find_workers_btn" href="#find_workers"><span class="icon fui-list-small-thumbnails"></span></a></li>
+	                <li><a id="post_work_btn" href="#post_work"><span class="icon fui-new"></span></a></li>
+	                <li><a id="my_workers_btn" href="#my_workers"><span class="icon fui-list-thumbnailed"></span></a></li>
+	                <li><a id="profile_btn" href="#profile"><span class="icon fui-user"></span></a></li>
+					<li><a id="logout_btn" href="https://workfar.com/logout"><span class="icon fui-exit"></span></a></li>
+               </ul>
+            </div>
+          </nav>
+        </div>
+  </div>
+<div id="tabs">
+</div>
+<script type="text/javascript">
+
+var loadedTabs = new Array();
+loadedTabs[0] = false;
+loadedTabs[1] = false;
+loadedTabs[2] = false;
+loadedTabs[3] = false;
+loadedTabs[4] = false;
+var prog = 0;
+var ac = 0;
+function find_workers() {
+	Utility.Form.get("view/members/employer/find_workers.html", function(data) {
+		$('#tabs').html(data);
+	});
+}
+function my_workers() {
+	Utility.Form.get("view/members/employer/my_workers.html", function(data) {
+		$('#tabs').html(data);
+	});
+}
+function payment() {
+	Utility.Form.get("view/members/employer/payment.html", function(data) {
+		$('#tabs').html(data);
+	});
+}
+function profile() {
+	Utility.Form.get("view/members/worker/profile.html", function(data) {
+		$('#tabs').html(data);
+	});
+}
+function message_board() {
+	Utility.Form.get("view/message_board.html", function(data) {
+		$('#tabs').html(data);
+	});
+}
+function post_work() {
+	Utility.Form.get("view/members/employer/post_work.html", function(data){
+		$('#tabs').html(data);
+	});
+}
+$(document).ready(function() {
+		$(".virtual_currency").click(function() {
+		Utility.Form.get("https://workfar.com/view/virtual_rewards/virtual_currency.html",function(response) {
+			$("#tabs").html(response);
+		});
+	});
+	    $(".icon").click(function() {
+        $(this).css("box-shadow","4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)");
+        $(".icon").not(this).css("box-shadow","none");
+
+    });
+	Utility.Navigation.loadPath("find_workers", find_workers);
+	Utility.Navigation.loadPath("my_workers", my_workers);
+	Utility.Navigation.loadPath("payment", payment);
+	Utility.Navigation.loadPath("profile", profile);
+	Utility.Navigation.loadPath("message_board", message_board);
+	Utility.Navigation.loadPath("post_work", post_work);
+	Utility.Navigation.loadPath("",function() { });
+	$("#find_work").click(function() {
+		Utility.Form.get("view/members/worker/worker.html", function(data) {
+			$('#content').html("<div id='header'>" + $("#header").html() + "</div>" + data);
+		});
+	});
+	Utility.Form.get("employer_status",function(jStatus) {
+		var employer_status = $.parseJSON(jStatus);
+
+	    function check_progress(){
+	        if(employer_status['email_verified'] == true) {
+	            prog += 25;
+	            ac++;
+	        }
+	        else
+	            $(".progress-label").html("Check Email");
+	        if(employer_status['payment_method'] == true) {
+	            prog += 25;
+	            ac++;
+	        }
+	         else {
+	            if ( prog == 25 )
+	            	$(".progress-label").html("Create Payment Method");
+	        }
+	        if(employer_status['profile_complete'] == true) {
+	            prog += 25;
+	            ac++;
+	        }
+	         else {
+	            if ( prog == 50 )
+	            	$(".progress-label").html("Complete My Profile");
+	        }
+	        if(employer_status['membership_paid'] == true) {
+	            prog += 25;
+	            ac++;
+	        }
+	        else {
+	            if ( prog == 75 )
+	            	$(".progress-label").html("Use virtual currency to hire workers with Monthly Membership.");
+	        }
+	        if(employer_status['hire_worker'] == true) {
+	            prog += 25;
+	            ac++;
+	        }
+	    }
+	    function completed() {	        if(prog == 100) 
+	            $("#progress").hide();
+	        else
+	        	$("#progress").progressbar({
+	        	value: prog
+	    	});
+	    }
+	    check_progress();
+	    completed();
+
+	    $(".percent").html(prog + "% | " + ac + " of 4 | ");
+	   
+	    $(".progress-label").prepend("To-do List: ");
+	});
+
+	$('#login_container').html("<div cass='right'><span id='message_btn' class='fui-video'> </span>&nbsp;&nbsp;&nbsp;<span id='logout' class='fui-cross'> </span></div>");
+	$('#logout').click(function() {
+		Utility.Form.get("logout", function() { location.reload(); });
+	});
+	
+	$("#find_workers_btn").click(function() {
+		var hash = location.hash.replace('#','');
+		if (hash == "find_workers")
+			find_workers();
+		else Utility.Navigation.setPath("find_workers");
+		
+	});
+	$("#my_workers_btn").click(function() {
+		var hash = location.hash.replace('#','');
+		if (hash == "my_workers")
+			my_workers();
+		else Utility.Navigation.setPath("my_workers");
+		
+	});
+	$("#payment_btn").click(function() {
+		var hash = location.hash.replace('#','');
+		if (hash == "payment")
+			payment();
+		else Utility.Navigation.setPath("payment");
+		
+	});
+	$("#profile_btn").click(function() {
+		var hash = location.hash.replace('#','');
+		if (hash == "profile")
+			profile();
+		else Utility.Navigation.setPath("profile");
+		
+	});
+	$("#message_board_btn").click(function() {
+		var hash = location.hash.replace('#','');
+		if (hash == "message_board")
+			message_board();
+		else Utility.Navigation.setPath("message_board");
+		
+	});
+	$("#post_work_btn").click(function() {
+		var hash = location.hash.replace('#','');
+		if (hash == "post_work")
+			post_work();
+		else Utility.Navigation.setPath("post_work");
+		
+	});
+
+    Utility.Form.get("view/members/employer/post_work.html", function(data) {
+    	Utility.Navigation.setPath("post_work");
+		$('#tabs').html(data);
+		
+	});
+});
+
+</script>
