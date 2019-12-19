@@ -14,5 +14,4 @@ Now apt-get install phpmyadmin, or use the command line sql tool to create the d
 Now navigate to controller/controller.php and change the variables for database name, user, and password to match your credentials.
 
 Now you can open jobsitethatsyours.com in the browser, and you will see the site fully functioning without the video conferencing enabled.
-'
-Future tutorial on implementing video chat in the browser upon award of the $50 feature request found on teddymurray.com/feature_request
+Future tutorial on implementing video chat in the browser upon award of the $50 feature request found on <a href='https://teddymurray.com/feature_request'>TeddyMurray.com</a>
