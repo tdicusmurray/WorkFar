@@ -11,7 +11,7 @@ Once you have a cloud server up and running, connect using winscp and upload all
 
 Now apt-get install phpmyadmin, or use the command line sql tool to create the database from the sql file within github (Upload coming soon)
 
-Now navigate to controller/controller.php and change the variables for dataabase name, user, and password to match your credentials.
+Now navigate to controller/controller.php and change the variables for database name, user, and password to match your credentials.
 
 Now you can open jobsitethatsyours.com in the browser, and you will see the site fully functioning without the video conferencing enabled.
 '
